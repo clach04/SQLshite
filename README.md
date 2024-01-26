@@ -15,8 +15,10 @@ Primary aim:
 	  * https://www.google.com/search?q=jsonform
 	  * TODO research https://github.com/RussellLuo/jsonform
 	  * https://github.com/jsonform/jsonform/ -  Bootstrap 3
+		* https://jsonform.github.io/jsonform/playground/index.html
 		* https://jsonform.github.io/jsonform/
 	  * https://github.com/eclipsesource/jsonforms - React, Angular and/or Vue
+		* https://jsonforms.io/examples/basic
 		* https://jsonforms.io/
   * view records, using https://github.com/olifolkerd/tabulator
   * quick search, with add (either on no match or no good match) using search term as initial value
