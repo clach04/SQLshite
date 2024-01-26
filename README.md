@@ -11,7 +11,7 @@ Primary aim:
 
   * no security - did you pay attention to the name of this project?
   * Simple SQL queries (TODO determine transaction model)
-  * view/edit record, using jsonschema / jsonforms (unlike above where transaction model is unclear, autocommit on save)
+  * view/edit record, using [jsonschema](https://json-schema.org/) / jsonforms (unlike above where transaction model is unclear, autocommit on save)
 	  * https://www.google.com/search?q=jsonform
 	  * TODO research Python libs
           * https://github.com/RussellLuo/jsonform
