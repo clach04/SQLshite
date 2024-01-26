@@ -12,6 +12,8 @@ Primary aim:
   * no security - did you pay attention to the name of this project?
   * Simple SQL queries (TODO determine transaction model)
   * view/edit record, using jsonforms (unlike above where transaction model is unclear, autocommit on save)
+	  * https://www.google.com/search?q=jsonform
+	  * TODO research https://github.com/RussellLuo/jsonform
 	  * https://github.com/jsonform/jsonform/ -  Bootstrap 3
 		* https://jsonform.github.io/jsonform/
 	  * https://github.com/eclipsesource/jsonforms - React, Angular and/or Vue
@@ -40,3 +42,7 @@ TBD
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/view/PRIMARY_KEY - view?
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/edit/PRIMARY_KEY - edit?
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/rows - view (maybe edit for desktop view) rows in table
+
+## Questions
+
+  * Datatype support. date/datetime
