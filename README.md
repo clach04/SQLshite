@@ -50,3 +50,16 @@ TBD
 ## Questions
 
   * Datatype support. date/datetime
+
+### Datatypes
+
+    SQL             Python
+    TIMESTAMP       DateTime
+    bool/boolean    bool
+    varchar         string
+    string          string
+    int             integer
+    real            float
+
+TODO consider Decimal support.
+TODO consider datetime as a mapping.
