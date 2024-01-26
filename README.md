@@ -5,6 +5,7 @@
 🗄💩 A terrible SQLite Web UI
 
 Aim is a simple UI, that works on mobile for quick search.
+Focused on single table work, rather than fk/pk relationship display.
 
 Primary aim:
 
@@ -18,3 +19,24 @@ Primary aim:
   * view records, using https://github.com/olifolkerd/tabulator
   * quick search, with add (either on no match or no good match) using search term as initial value
 	  * searching either a defined column, the first column, or all columns
+
+## Design
+
+AKA TODO
+
+### URLs
+
+	http://localhost/ - browse databases
+	http://localhost/d - browse databases
+
+	http://localhost/d/DATABASE_NAME - browse tables
+
+	http://localhost/d/DATABASE_NAME/TABLE_NAME - browse table (rows)?
+
+TBD
+
+	http://localhost/d/DATABASE_NAME/TABLE_NAME/PRIMARY_KEY - edit/view?
+	http://localhost/d/DATABASE_NAME/TABLE_NAME/row/PRIMARY_KEY - view?
+	http://localhost/d/DATABASE_NAME/TABLE_NAME/view/PRIMARY_KEY - view?
+	http://localhost/d/DATABASE_NAME/TABLE_NAME/edit/PRIMARY_KEY - edit?
+	http://localhost/d/DATABASE_NAME/TABLE_NAME/rows - view (maybe edit for desktop view) rows in table
