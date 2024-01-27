@@ -52,7 +52,14 @@ import sqlshite
 
 
 log = logging.getLogger(__name__)
-logging.basicConfig()
+#logging.basicConfig()
+# post python 2.5
+logging_fmt_str = "%(process)d %(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d %(funcName)s() - %(levelname)s - %(message)s"
+formatter = logging.Formatter(logging_fmt_str)
+ch = logging.StreamHandler()  # use stdio
+ch.setFormatter(formatter)
+log.addHandler(ch)
+
 log.setLevel(level=logging.DEBUG)
 
 DEFAULT_SERVER_PORT = 8777
@@ -334,7 +341,9 @@ def table_rows(environ, start_response, dal, table_name, schema=None):
 
 def table_explore(environ, start_response, path_info=None, path_info_list=None):
     """Explore a table
+    TODO redirect if not ending in / and database view
     """
+    log.debug('entry')
     status = '200 OK'
     headers = [('Content-type', 'text/html')]
     result = []
@@ -384,6 +393,9 @@ class DalWebApp:
 
         path_info = environ['PATH_INFO']
         path_info_list = [x for x in path_info.split('/') if x]
+        print('DalWebApp: path_info %r' % path_info)
+        print('DalWebApp: path_info_list %r' % path_info_list)
+
         if path_info == '/d' or path_info.startswith('/d/'):
             if len(path_info_list) == 1:
                 return list_databases(environ, start_response)
