@@ -305,7 +305,7 @@ def view_row(environ, start_response, dal, table_name, schema, rowid):
     jsonform = copy.copy(jsonform_dict)
     jsonform['value'] = row_dict
     # FIXME this assumes, and deletes the buttons from the form
-    del(jsonform["form"][-1])
+    #del(jsonform["form"][-1])  # FIXME
 
     result.append(json.dumps(jsonform, indent=4))
     start_response(status, headers)
@@ -371,10 +371,16 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None):
     status = '200 OK'
     headers = [('Content-type', 'text/html')]
 
-    sql = sql or 'select * from "%s"' % table_name
+    if sql:
+        generated_sql = False
+    else:
+        generated_sql = True
+    sql = sql or 'select rowid as sqlite_rowid, * from "%s"' % table_name
     cursor = dal.db.cursor
     cursor.execute(sql)
     column_names = list(x[0] for x in cursor.description)  # or use schema... has more detail (at least for SQLite)
+    if generated_sql:
+        column_names = column_names[1:]
     row = cursor.fetchone()
     start_response(status, headers)
     yield b'WIP, no paging/offset support</br>'
@@ -385,8 +391,14 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None):
     yield b'</tr>\n'
     while row:
         yield b'<tr>\n'
+        if generated_sql:
+            rowid = row[0]
+            row = row[1:]
+            column_value_template = '<a href="/d/%s/%s/view/%d/">%%s</a>' % (dal.name, table_name, rowid)  # TODO escaping?
+        else:
+            column_value_template = '%s'
         for column_value in row:
-            tmp_str = "<td>" + escape_html('%s' % column_value) + "</td>"  # FIXME string processng, for example boolean to check-box
+            tmp_str = "<td>" + column_value_template % escape_html(str(column_value)) + "</td>"  # FIXME string processng, for example boolean to check-box
             yield tmp_str.encode('utf-8')
         yield b'</tr>\n'
         row = cursor.fetchone()
@@ -402,6 +414,9 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
     result = []
 
     path_info_list = path_info_list or [x for x in environ['PATH_INFO'].split('/') if x]
+    log.debug('path_info %r', path_info)
+    log.debug('path_info_list %r', path_info_list)
+
     if '?' not in path_info and not path_info.endswith('.json') and not path_info.endswith('/'):
         # dumb redirect
         log.debug('**** REDIRECT %r' % (path_info, ))
@@ -418,7 +433,7 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
     dal = global_dbs.get(database)
     if not dal:
         return not_found_404(environ, start_response)
-    if len(path_info_list) == 3:
+    if len(path_info_list) == 3 and path_info_list[2] == 'sql':
         # maybe http://localhost/d/DATABASE_NAME/sql
         return sql_editor(environ, start_response, dal)
     schema = dal.schema.get(table_name)
@@ -464,8 +479,6 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
             pass  # just view table
 
     result.append(b'WIP')
-    print('path_info %r' % path_info)
-    print('path_info_list %r' % path_info_list)
     result.append(b' <a href="jsonform.json">jsonform.json</a></br>')
     result.append(b' <a href="rows/">rows</a></br>')
     result.append(b' <a href="view/1/">view 1</a></br>')
@@ -606,7 +619,7 @@ def main(argv=None):
         connection_string = config["databases"][database_name]
         db = sqlshite.DatabaseWrapper(connection_string)
         db.do_connect()
-        dal = sqlshite.DataAccessLayer(db)
+        dal = sqlshite.DataAccessLayer(db, name=database_name)
         global_dbs[database_name] = dal
     my_start_server(DalWebApp)
 

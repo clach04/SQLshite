@@ -357,11 +357,12 @@ def generate_jsonforms_schema(table_name, column_type_list):
     return result
 
 class DataAccessLayer:
-    def __init__(self, db_connection, TODO=None):
+    def __init__(self, db_connection, name=None, TODO=None):
         """@db_connection is an object of type DatabaseWrapper() that is already connected
         """
         db = db_connection
         self.db = db
+        self.name = name
 
         table_list = db.table_list()  # list of table names only, no schema/owner
         db_schema = {}
