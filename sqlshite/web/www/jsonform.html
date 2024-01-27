@@ -70,8 +70,8 @@
                     //console.log('json string converted ', JSON.stringify(jsonform_dict, null, 2));
                     console.log('json string converted ', JSON.stringify(jsonform_dict, null));
                 }
-                $('#result').html('<form id="result-form" class="form-vertical"></form>');
-                $('#result-form').jsonForm(jsonform_dict);  // this defaults to GET
+                $('#result').html('<form id="result-form" class="form-vertical" method="POST"></form>');
+                $('#result-form').jsonForm(jsonform_dict);
             }).fail(function () {
                 $('#result').html('Unable to load json!');
         });

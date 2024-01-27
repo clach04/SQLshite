@@ -396,14 +396,6 @@ class DalWebApp:
         print('DalWebApp: path_info %r' % path_info)
         print('DalWebApp: path_info_list %r' % path_info_list)
 
-        if path_info == '/d' or path_info.startswith('/d/'):
-            if len(path_info_list) == 1:
-                return list_databases(environ, start_response)
-            elif len(path_info_list) == 2:
-                return list_tables(environ, start_response)
-            elif len(path_info_list) in (3, 4):
-                return table_explore(environ, start_response, path_info=path_info, path_info_list=path_info_list)
-
         # see if there is a flat file on the filesystem
         if path_info and path_info.startswith('/'): # assuming ALWAYS_RETURN_404=false (or at least not true)
             filename = os.path.join(host_dir, path_info[1:])
@@ -470,12 +462,22 @@ class DalWebApp:
 
         #if path_info and path_info.startswith('/'):
 
-        print('body payload: %r' % request_body)
+        print('body payload: %r' % request_body)  # e.g. from a form POST (looks like GET key/values)
         if environ.get('CONTENT_TYPE') == 'application/json' and json and request_body:
             # 1. Validate the payload - with stacktrace on failure
             # 2. Pretty Print/display the payload
             print('POST json body\n-------------\n%s\n-------------\n' % json.dumps(json.loads(request_body), indent=4))
         #print('environ %r' % environ)
+
+        if path_info == '/d' or path_info.startswith('/d/'):
+            if len(path_info_list) == 1:
+                return list_databases(environ, start_response)
+            elif len(path_info_list) == 2:
+                return list_tables(environ, start_response)
+            elif len(path_info_list) in (3, 4):
+                return table_explore(environ, start_response, path_info=path_info, path_info_list=path_info_list)
+
+
         if True:
             # Disable this to send 200 and empty body
             return not_found_404(environ, start_response)
