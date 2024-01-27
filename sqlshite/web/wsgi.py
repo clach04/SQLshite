@@ -184,7 +184,7 @@ def my_start_server(callable_app):
 host_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'www')
 
 render_template_cache = {}
-def render_template(template_filename, variables, use_cache=True):
+def render_template(template_filename, variables, use_cache=False):
     """Where use_cache means both lookup and store in cache
     Returns bytes
     """
@@ -213,9 +213,20 @@ def list_databases(environ, start_response):
 
     path_info = environ['PATH_INFO']
     path_info_list = [x for x in path_info.split('/') if x]
+    result.append(render_template('list_databases.html', {'databases': [database_name for database_name in global_dbs]}))
+    start_response(status, headers)
+    return result
+
+def list_tables(environ, start_response):
+    status = '200 OK'
+    headers = [('Content-type', 'text/html')]
+    result = []
+
+    path_info = environ['PATH_INFO']
+    path_info_list = [x for x in path_info.split('/') if x]
     database = path_info_list[1]
     dal = global_dbs[database]
-    result.append(render_template('list_databases.html', {'databases': [table_name for table_name in dal.schema]}))
+    result.append(render_template('list_tables.html', {'tables': [table_name for table_name in dal.schema]}))
     start_response(status, headers)
     return result
 
@@ -228,8 +239,11 @@ class DalWebApp:
 
         path_info = environ['PATH_INFO']
         path_info_list = [x for x in path_info.split('/') if x]
-        if path_info.startswith('/d/') and len(path_info_list) == 2:
-            return list_databases(environ, start_response)
+        if path_info == '/d' or path_info.startswith('/d/'):
+            if len(path_info_list) == 1:
+                return list_databases(environ, start_response)
+            elif len(path_info_list) == 2:
+                return list_tables(environ, start_response)
 
         # Returns a dictionary in which the values are lists
         if environ.get('QUERY_STRING'):
