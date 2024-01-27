@@ -307,7 +307,7 @@ def view_row(environ, start_response, dal, table_name, schema, rowid):
     # FIXME this assumes, and deletes the buttons from the form
     #del(jsonform["form"][-1])  # FIXME
 
-    result.append(json.dumps(jsonform, indent=4))
+    result.append(json.dumps(jsonform, indent=4, default=str))
     start_response(status, headers)
     return result
 
