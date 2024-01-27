@@ -19,6 +19,14 @@ except ImportError:
     # py2
     from cgi import escape as escape_html
 
+try:
+    # py2 (and <py3.8)
+    from cgi import parse_qs
+except ImportError:
+    # py3
+    from urllib.parse import parse_qs
+
+
 import mimetypes
 from pprint import pprint
 
@@ -329,13 +337,41 @@ def add_row(environ, start_response, dal, table_name, schema=None):
     content_type, result = serve_file(filename)
     return result
 
-def table_rows(environ, start_response, dal, table_name, schema=None):
+def sql_editor(environ, start_response, dal):
     """Explore a table
     """
     status = '200 OK'
     headers = [('Content-type', 'text/html')]
 
-    sql = 'select * from "%s"' % table_name
+    # form GET -- TODO POST support
+    # Returns a dictionary in which the values are lists
+    if environ.get('QUERY_STRING'):
+        get_dict = parse_qs(environ['QUERY_STRING'])
+    else:
+        get_dict = {}  # wonder if should make None to make clear its not there at all
+
+    sql = get_dict.get('sql_str')
+    if sql:
+        try:
+            sql = sql[0]
+        except IndexError:
+            sql = None
+
+    if sql:
+        return table_rows(environ, start_response, dal, table_name=None, schema=None, sql=sql)  # TODO some way to indicate this query came from raw SQL
+    # else
+    filename = os.path.join(host_dir, 'sql_editor.html')
+    start_response(status, headers)
+    content_type, result = serve_file(filename)
+    return result
+
+def table_rows(environ, start_response, dal, table_name, schema=None, sql=None):
+    """Explore a table
+    """
+    status = '200 OK'
+    headers = [('Content-type', 'text/html')]
+
+    sql = sql or 'select * from "%s"' % table_name
     cursor = dal.db.cursor
     cursor.execute(sql)
     column_names = list(x[0] for x in cursor.description)  # or use schema... has more detail (at least for SQLite)
@@ -382,6 +418,9 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
     dal = global_dbs.get(database)
     if not dal:
         return not_found_404(environ, start_response)
+    if len(path_info_list) == 3:
+        # maybe http://localhost/d/DATABASE_NAME/sql
+        return sql_editor(environ, start_response, dal)
     schema = dal.schema.get(table_name)
     if not schema:
         return not_found_404(environ, start_response)
