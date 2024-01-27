@@ -183,6 +183,26 @@ def my_start_server(callable_app):
 
 host_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'www')
 
+render_template_cache = {}
+def render_template(template_filename, variables, use_cache=True):
+    """Where use_cache means both lookup and store in cache
+    Returns bytes
+    """
+    template_filename = os.path.join(host_dir, template_filename)
+    if use_cache:
+        template_string = render_template_cache.get(template_filename)
+    else:
+        template_string = None
+
+    if not template_string:
+        f = open(template_filename, 'rb')
+        template_string = f.read().decode('utf-8')
+        f.close()
+        if use_cache:
+            render_template_cache[template_filename] = template_string
+
+    return stache.render(template_string, variables).encode('utf-8')
+
 global_config = {}
 global_dbs = {}
 
@@ -195,14 +215,7 @@ def list_databases(environ, start_response):
     path_info_list = [x for x in path_info.split('/') if x]
     database = path_info_list[1]
     dal = global_dbs[database]
-    static_template = """{{#databases}}{{.}}</br>{{/databases}}
-"""
-    result.append(stache.render(static_template, {'databases': [table_name for table_name in dal.schema]}).encode('utf-8'))
-    """
-    for table_name in dal.schema:
-        result.append(table_name.encode('utf-8'))
-    """
-
+    result.append(render_template('list_databases.html', {'databases': [table_name for table_name in dal.schema]}))
     start_response(status, headers)
     return result
 
