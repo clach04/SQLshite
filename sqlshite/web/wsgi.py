@@ -320,9 +320,8 @@ def view_html(environ, start_response, dal, table_name, schema, rowid):
     result = []
 
     # TODO use rowid?
-    filename = os.path.join(host_dir, 'viewform.html')
+    result.append(render_template('viewform.html', {'table_name': table_name}))
     start_response(status, headers)
-    content_type, result = serve_file(filename)
     return result
 
 def add_row(environ, start_response, dal, table_name, schema=None):
