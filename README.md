@@ -27,6 +27,33 @@ Primary aim:
   * quick search, with add (either on no match or no good match) using search term as initial value
 	  * searching either a defined column, the first column, or all columns
 
+## Getting Started
+
+### From a source code checkout
+
+    python -m pip install -r requirements.txt
+    # TODO requirements_optional.txt
+    #python -m pip install -e .
+
+#### Usage
+
+	python -m sqlshite.web.wsgi
+	python -m sqlshite.web.wsgi config.json
+
+Where `config.json` contains:
+
+{
+    "databases": {
+        "memory": ":memory:",
+        "mydb": "mydb.sqlite3"
+    }
+}
+
+Then open:
+
+  * http://localhost:8777/d/memory/
+
+
 ## Design
 
 AKA TODO
