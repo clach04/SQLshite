@@ -46,7 +46,8 @@ TBD
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/PRIMARY_KEY - edit/view?
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/row/PRIMARY_KEY - view?
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/view/PRIMARY_KEY - view?
-	http://localhost/d/DATABASE_NAME/TABLE_NAME/edit/PRIMARY_KEY - edit?
+	http://localhost/d/DATABASE_NAME/TABLE_NAME/add/PRIMARY_KEY - add/edit?
+	http://localhost/d/DATABASE_NAME/TABLE_NAME/edit/PRIMARY_KEY - edit existing?
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/rows - view (maybe edit for desktop view) rows in table
 
 ## Questions
