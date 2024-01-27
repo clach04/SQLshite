@@ -558,6 +558,8 @@ def main(argv=None):
                 "memory": ":memory:",
             },
         }
+        print('No config file specified, defaulting to:')
+        print('%s' % json.dumps(config, indent=4))
     print(host_dir)
     print(config)
     global_config.update(config)
