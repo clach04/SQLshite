@@ -228,8 +228,8 @@ python_type_to_jsonform_type = {
     str: "string",
     int: "integer",
     bool: "boolean",
-    float: "string",  # FIXME - no support in jsonform? https://github.com/jsonform/jsonform/wiki#extending-json-form-with-your-own-fields
-    date: "string",  # FIXME - no support in jsonform?
+    float: "number",  # TODO review, validation works but will see increment/decrement buttons which round up/down 
+    date: "string",  # FIXME - no support in jsonform? https://github.com/jsonform/jsonform/wiki#extending-json-form-with-your-own-fields
     datetime: "string",  # FIXME - no support in jsonform?
 }
 
