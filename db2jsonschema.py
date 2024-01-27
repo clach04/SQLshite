@@ -228,9 +228,9 @@ python_type_to_jsonform_type = {
     str: "string",
     int: "integer",
     bool: "boolean",
-    float: "number ",
-    date: "string",  # FIXME
-    datetime: "string",  # FIXME
+    float: "string",  # FIXME - no support in jsonform?
+    date: "string",  # FIXME - no support in jsonform?
+    datetime: "string",  # FIXME - no support in jsonform?
 }
 
 def generate_jsonform_schema(table_name, column_type_list):
@@ -246,11 +246,10 @@ def generate_jsonform_schema(table_name, column_type_list):
     }
 
     for column_name, column_type, column_notnull, column_default_value, column_primary_key in column_type_list:
-        python_type_to_jsonform_type[column_type]
         result["schema"][column_name] = {
               "title": column_name,  # TODO consider uppercasing?
               #"description": "some sort of description",
-              "type": "string",
+              "type": python_type_to_jsonform_type[column_type],
         }
     return result
 
