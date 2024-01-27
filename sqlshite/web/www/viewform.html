@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>TODO SQLshite TABLE_NAME_HERE</title>
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
+  <style>
+      .jsonform-required > label:after {
+        content: ' *';
+        color: red;
+      }
+
+      form.jsonform-hasrequired:after {
+        content: '* Required field';
+        display: block;
+        color: red;
+        padding-top: 1em;
+      }
+  </style>
+</head>
+<body>
+  <h1>SQLshite</h1>
+  <form></form>
+  <div id="res" class="alert"></div>
+
+        <div class="col-md-7">
+          <h2>TODO table name here</h2>
+          <div id="result" class="well">(please wait)</div>
+        </div>
+
+  <script type="text/javascript" src="/js/jquery.min.js"></script>
+  <script type="text/javascript" src="/js/underscore.js"></script>
+  <script type="text/javascript" src="/js/jsv.js"></script>
+  <script type="text/javascript" src="/js/jsonform.js"></script>
+  <script type="text/javascript">
+        var jsonform_dict = null;
+
+        var loadExample = function (example) {
+            $.ajax({
+                //url: 'examples/' + example + '.json',
+                url: 'view.json',  // uses relative path
+                dataType: 'text'
+            }).done(function (json_string) {
+                if (console && console.log) {
+                    console.log('json string from server', json_string);
+                }
+                jsonform_dict = JSON.parse(json_string);  // TODO error handling
+                if (console && console.log) {
+                    //console.log('json string converted ', JSON.stringify(jsonform_dict, null, 2));
+                    console.log('json string converted ', JSON.stringify(jsonform_dict, null));
+                }
+                $('#result').html('<form id="result-form" class="form-vertical" method="POST"></form>');
+                $('#result-form').jsonForm(jsonform_dict);
+            }).fail(function () {
+                $('#result').html('Unable to load json!');
+        });
+        };
+        loadExample('dummy');
+
+
+  </script>
+</body>
+</html>

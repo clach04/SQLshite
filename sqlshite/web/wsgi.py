@@ -273,6 +273,7 @@ def jsonform(environ, start_response):
 
 def view_row(environ, start_response, dal, table_name, schema, rowid):
     """View a single row
+    TODO headers to avoid caching
     TODO serve html currently serves json, which can be used with https://jsonform.github.io/jsonform/playground/
     /view.json
     /edit.json....
@@ -295,9 +296,25 @@ def view_row(environ, start_response, dal, table_name, schema, rowid):
     row_dict = dict(zip(column_names, row))
     jsonform = copy.copy(jsonform_dict)
     jsonform['value'] = row_dict
+    # FIXME this assumes, and deletes the buttons from the form
+    del(jsonform["form"][-1])
 
-    result.append(json.dumps(jsonform_dict, indent=4))
+    result.append(json.dumps(jsonform, indent=4))
     start_response(status, headers)
+    return result
+
+def view_html(environ, start_response, dal, table_name, schema, rowid):
+    """View a row, NOTE duplication of code with add and edit
+    FIXME redirect if not ending in /
+    """
+    status = '200 OK'
+    headers = [('Content-type', 'text/html')]
+    result = []
+
+    # TODO use rowid?
+    filename = os.path.join(host_dir, 'viewform.html')
+    start_response(status, headers)
+    content_type, result = serve_file(filename)
     return result
 
 def add_row(environ, start_response, dal, table_name, schema=None):
@@ -374,13 +391,40 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
                 rowid = int(operation)
                 return view_row(environ, start_response, dal, table_name, schema, rowid)
             except ValueError:
-                pass  # just view....
+                pass  # just view table
+    elif len(path_info_list) == 5:
+        try:
+            if path_info_list[3] == 'view':
+                # http://localhost:8777/d/memory/kitchen_sink/view/1
+                # http://localhost:8777/d/memory/kitchen_sink/view/1/
+                operation = path_info_list[4]
+                rowid = int(operation)
+                return view_html(environ, start_response, dal, table_name, schema, rowid)
+            elif path_info.endswith('/view.json'):  # TODO edit
+                # http://localhost:8777/d/memory/kitchen_sink/1/view.json  # unused yet...
+                # Assume SQLite3
+                operation = path_info_list[3]
+                rowid = int(operation)
+                return view_row(environ, start_response, dal, table_name, schema, rowid)  # FIXME remove buttons
+        except ValueError:
+            pass  # just view table
+    elif len(path_info_list) == 6:
+        try:
+            if path_info.endswith('/view.json'):  # TODO edit
+                # http://localhost:8777/d/memory/kitchen_sink/view/1/view.json
+                operation = path_info_list[4]
+                rowid = int(operation)
+                return view_row(environ, start_response, dal, table_name, schema, rowid)
+        except ValueError:
+            pass  # just view table
 
     result.append(b'WIP')
     print('path_info %r' % path_info)
     print('path_info_list %r' % path_info_list)
     result.append(b' <a href="jsonform.json">jsonform.json</a></br>')
     result.append(b' <a href="rows/">rows</a></br>')
+    result.append(b' <a href="view/1/">view 1</a></br>')
+    result.append(b' <a href="add/">add</a></br>')
     start_response(status, headers)
     return result
 
@@ -474,7 +518,7 @@ class DalWebApp:
                 return list_databases(environ, start_response)
             elif len(path_info_list) == 2:
                 return list_tables(environ, start_response)
-            elif len(path_info_list) in (3, 4):
+            elif len(path_info_list) in (3, 4, 5, 6):
                 return table_explore(environ, start_response, path_info=path_info, path_info_list=path_info_list)
 
 
