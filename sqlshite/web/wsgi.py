@@ -293,6 +293,18 @@ def view_row(environ, start_response, dal, table_name, schema, rowid):
     start_response(status, headers)
     return result
 
+def add_row(environ, start_response, dal, table_name, schema=None):
+    """Explore a table
+    """
+    status = '200 OK'
+    headers = [('Content-type', 'text/html')]
+    result = []
+
+    filename = os.path.join(host_dir, 'jsonform.html')
+    start_response(status, headers)
+    content_type, result = serve_file(filename)
+    return result
+
 def table_rows(environ, start_response, dal, table_name, schema=None):
     """Explore a table
     """
@@ -344,6 +356,8 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
     if len(path_info_list) == 4:
         if path_info_list[3] == 'rows':
             return table_rows(environ, start_response, dal, table_name, schema)
+        elif path_info_list[3] == 'add':
+            return add_row(environ, start_response, dal, table_name, schema)
         else:
             operation = path_info_list[3]
             try:
@@ -377,6 +391,27 @@ class DalWebApp:
                 return list_tables(environ, start_response)
             elif len(path_info_list) in (3, 4):
                 return table_explore(environ, start_response, path_info=path_info, path_info_list=path_info_list)
+
+        # see if there is a flat file on the filesystem
+        if path_info and path_info.startswith('/'): # assuming ALWAYS_RETURN_404=false (or at least not true)
+            filename = os.path.join(host_dir, path_info[1:])
+            filename = os.path.abspath(filename)  # trim of trailing slashes, and handle relative paths ./ and ../
+            print('check if we have %r file locally to serve' % filename)
+        if os.path.exists(filename):
+            content_type, result = serve_file(filename)
+            print(content_type)
+            if result:
+                if content_type:
+                    headers = [('Content-type', content_type)]
+                if 1:
+                    headers.append(('Content-Length', str(len(result[0]))))
+                    #headers.append(('Last-Modified', 'Sun, 01 Jan 2023 18:53:39 GMT'))  # this is the format expected
+                    headers.append(('Last-Modified', current_timestamp_for_header()))  # many clients will cache
+                    # TODO 'Date'? bjoern does NOT include this by default where as wsgiref does
+
+            print('serving static file %r' % path_info)
+            start_response(status, headers)
+            return result
 
         # Returns a dictionary in which the values are lists
         if environ.get('QUERY_STRING'):
@@ -432,32 +467,6 @@ class DalWebApp:
         if True:
             # Disable this to send 200 and empty body
             return not_found_404(environ, start_response)
-
-        # see if there is a flat file on the filesystem
-        if path_info and path_info.startswith('/'): # assuming ALWAYS_RETURN_404=false (or at least not true)
-            filename = os.path.join(host_dir, path_info[1:])
-            filename = os.path.abspath(filename)  # trim of trailing slashes, and handle relative paths ./ and ../
-            print('check if we have %r file locally to serve' % filename)
-        if os.path.exists(filename):
-            content_type, result = serve_file(filename)
-            print(content_type)
-            if result:
-                if content_type:
-                    headers = [('Content-type', content_type)]
-                if 1:
-                    headers.append(('Content-Length', str(len(result[0]))))
-                    #headers.append(('Last-Modified', 'Sun, 01 Jan 2023 18:53:39 GMT'))  # this is the format expected
-                    headers.append(('Last-Modified', current_timestamp_for_header()))  # many clients will cache
-                    # TODO 'Date'? bjoern does NOT include this by default where as wsgiref does
-
-            print('serving static file %r' % path_info)
-        else:
-            # return 404 by default
-            return not_found_404(environ, start_response)
-            # over ride to change behavior
-            pass  # return empty
-            #result.append(to_bytes('hello'))  # or some dummy data
-
 
         start_response(status, headers)
         return result

@@ -84,7 +84,7 @@ TBD
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/PRIMARY_KEY - edit/view?
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/row/PRIMARY_KEY - view?
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/view/PRIMARY_KEY - view?
-	http://localhost/d/DATABASE_NAME/TABLE_NAME/add/PRIMARY_KEY - add/edit?
+	http://localhost/d/DATABASE_NAME/TABLE_NAME/add - add (with edit dialog)?
 
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/edit/PRIMARY_KEY - edit existing?
  need to use hidden field for PK (compound pk?) in case pk is updated. Potentially use readonly (especially for view)
