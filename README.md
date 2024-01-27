@@ -64,6 +64,12 @@ AKA TODO
 	http://localhost/d - browse databases
 
 	http://localhost/d/DATABASE_NAME - browse tables
+
+	http://localhost/d/DATABASE_NAME/TABLE_NAME/jsonform.json - schema in jsonform - format
+	http://localhost/d/DATABASE_NAME/TABLE_NAME/rows - view (TODO cleanup and maybe edit for desktop view) rows in table
+
+TODO
+
 	http://localhost/d/DATABASE_NAME/sql - issue SQL queries
 
 	http://localhost/d/DATABASE_NAME/TABLE_NAME - browse table (rows)?
@@ -71,7 +77,6 @@ AKA TODO
 TBD
 
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/schema.json - schema in jsonform - format
-	http://localhost/d/DATABASE_NAME/TABLE_NAME/jsonform.json - schema in jsonform - format
 
 	http://localhost/d/DATABASE_NAME/TABLE_NAME?rowid=A - view? where rowid is sqlite specific rowid?
 
@@ -85,7 +90,6 @@ TBD
  need to use hidden field for PK (compound pk?) in case pk is updated. Potentially use readonly (especially for view)
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/edit/PRIMARY_KEY/jsonform.json - schema+data in jsonform - format with data
 
-	http://localhost/d/DATABASE_NAME/TABLE_NAME/rows - view (maybe edit for desktop view) rows in table
 
 ## Questions
 
