@@ -329,6 +329,25 @@ def generate_jsonforms_schema(table_name, column_type_list):
     result["required"] = required
     return result
 
+class DataAccessLayer:
+    def __init__(self, db_connection, TODO=None):
+        """@db_connection is an object of type DatabaseWrapper() that is already connected
+        """
+        db = db_connection
+        self.db = db
+
+        table_list = db.table_list()  # list of table names only, no schema/owner
+        db_schema = {}
+        db_schema_jsonform = {}
+        for tname in table_list:
+            print('********** table: %s' % tname)
+            clist = db.column_type_list(tname)
+            db_schema[tname] = clist
+            db_schema_jsonform[tname] = generate_jsonforms_schema(tname, clist)
+
+        self.schema = db_schema
+        self.jsonform = db_schema_jsonform
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -363,13 +382,9 @@ def main(argv=None):
     print('jsonforms %r' % jsonforms)
     print('%s' % json.dumps(jsonforms, indent=4))
 
-    db_schema = {}
-    db_schema_jsonform = {}
-    for tname in table_list:
-        print('********** table: %s' % tname)
-        clist = db.column_type_list(tname)
-        db_schema[tname] = clist
-        db_schema_jsonform[tname] = generate_jsonforms_schema(tname, clist)
+    dal = DataAccessLayer(db)
+    db_schema = dal.schema
+    db_schema_jsonform = dal.jsonform
     """
     print('db_schema_jsonform= %r' % db_schema_jsonform)
     print('db_schema= %r' % db_schema)
