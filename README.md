@@ -4,6 +4,8 @@
 
 🗄💩 A terrible SQLite Web UI
 
+Not ready for general consumption, right now only browsing/viewing SQLite3 databases/tables is supported (and then barely).
+
 Aim is a simple UI, that works on mobile for quick search.
 Focused on single table work, rather than fk/pk relationship display.
 
