@@ -67,7 +67,7 @@ def to_bytes(in_str):
     # could choose to only encode for Python 3+
     return in_str.encode('utf-8')
 
-def not_found(environ, start_response):
+def not_found_404(environ, start_response):
     """serves 404s."""
     #start_response('404 NOT FOUND', [('Content-Type', 'text/plain')])
     #return ['Not Found']
@@ -224,9 +224,32 @@ def list_tables(environ, start_response):
 
     path_info = environ['PATH_INFO']
     path_info_list = [x for x in path_info.split('/') if x]
+    #current_path = '/'.join(path_info_list)  # TODO current full URL
     database = path_info_list[1]
-    dal = global_dbs[database]
+    dal = global_dbs.get(database)
+    if not dal:
+        return not_found_404(environ, start_response)
     result.append(render_template('list_tables.html', {'tables': [table_name for table_name in dal.schema]}))
+    start_response(status, headers)
+    return result
+
+def table_explore(environ, start_response):
+    status = '200 OK'
+    headers = [('Content-type', 'application/json')]
+    result = []
+
+    path_info = environ['PATH_INFO']
+    path_info_list = [x for x in path_info.split('/') if x]
+    #current_path = '/'.join(path_info_list)  # TODO current full URL
+    database = path_info_list[1]
+    table_name = path_info_list[2]
+    dal = global_dbs.get(database)
+    if not dal:
+        return not_found_404(environ, start_response)
+    jsonform = dal.jsonform.get(table_name)
+    if not jsonform:
+        return not_found_404(environ, start_response)
+    result.append(json.dumps(jsonform, indent=4))
     start_response(status, headers)
     return result
 
@@ -244,6 +267,8 @@ class DalWebApp:
                 return list_databases(environ, start_response)
             elif len(path_info_list) == 2:
                 return list_tables(environ, start_response)
+            elif len(path_info_list) == 3:
+                return table_explore(environ, start_response)
 
         # Returns a dictionary in which the values are lists
         if environ.get('QUERY_STRING'):
@@ -298,7 +323,7 @@ class DalWebApp:
         #print('environ %r' % environ)
         if True:
             # Disable this to send 200 and empty body
-            return not_found(environ, start_response)
+            return not_found_404(environ, start_response)
 
         # see if there is a flat file on the filesystem
         if path_info and path_info.startswith('/'): # assuming ALWAYS_RETURN_404=false (or at least not true)
@@ -320,7 +345,7 @@ class DalWebApp:
             print('serving static file %r' % path_info)
         else:
             # return 404 by default
-            return not_found(environ, start_response)
+            return not_found_404(environ, start_response)
             # over ride to change behavior
             pass  # return empty
             #result.append(to_bytes('hello'))  # or some dummy data
