@@ -42,6 +42,7 @@ AKA TODO
 
 TBD
 
+	http://localhost/d/DATABASE_NAME/TABLE_NAME?rowid=A - view? where rowid is sqlite specific rowid?
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/PRIMARY_KEY - edit/view?
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/row/PRIMARY_KEY - view?
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/view/PRIMARY_KEY - view?
