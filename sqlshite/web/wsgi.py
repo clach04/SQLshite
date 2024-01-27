@@ -5,6 +5,7 @@
 """wsgi based Web UI
 """
 
+import copy
 import json
 import logging
 import os
@@ -263,6 +264,33 @@ def jsonform(environ, start_response):
     start_response(status, headers)
     return result
 
+def view_row(environ, start_response, dal, table_name, schema, rowid):
+    """View a single row
+    TODO serve html currently serves json, which can be used with https://jsonform.github.io/jsonform/playground/
+    /view.json
+    /edit.json....
+    """
+    status = '200 OK'
+    headers = [('Content-type', 'text/html')]
+    result = []
+
+    jsonform_dict = dal.jsonform.get(table_name)
+    if not jsonform_dict:
+        return not_found_404(environ, start_response)
+
+    sql = 'select * from "%s" where rowid=?' % table_name
+    cursor = dal.db.cursor
+    cursor.execute(sql, (rowid,))
+    column_names = list(x[0] for x in cursor.description)  # or use schema... has more detail (at least for SQLite)
+    row = cursor.fetchone()
+    row_dict = dict(zip(column_names, row))
+    jsonform = copy.copy(jsonform_dict)
+    jsonform['value'] = row_dict
+
+    result.append(json.dumps(jsonform_dict, indent=4))
+    start_response(status, headers)
+    return result
+
 def table_rows(environ, start_response, dal, table_name, schema=None):
     """Explore a table
     """
@@ -314,8 +342,18 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
     if len(path_info_list) == 4:
         if path_info_list[3] == 'rows':
             return table_rows(environ, start_response, dal, table_name, schema)
+        else:
+            operation = path_info_list[3]
+            try:
+                # Assume SQLite3
+                rowid = int(operation)
+                return view_row(environ, start_response, dal, table_name, schema, rowid)
+            except ValueError:
+                pass  # just view....
 
     result.append(b'WIP')
+    print('path_info %r' % path_info)
+    print('path_info_list %r' % path_info_list)
     result.append(b' <a href="jsonform.json">jsonform.json</a></br>')
     result.append(b' <a href="rows/">rows</a></br>')
     start_response(status, headers)
