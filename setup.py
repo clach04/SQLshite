@@ -21,6 +21,13 @@ Suggested setup.py parameters:
     * sdist  # NOTE requires tar/gzip commands
 
     python -m pip install -e .
+
+PyPi:
+
+    python -m pip install setuptools twine
+    twine upload dist/*
+    ./setup.py  sdist ; twine upload dist/* --verbose
+
 """)
 
 readme_filename = 'README.md'
