@@ -11,6 +11,12 @@ import os
 import sys
 
 
+try:
+    # py 3.8+
+    from html import escape as escape_html
+except ImportError:
+    # py2
+    from cgi import escape as escape_html
 
 import mimetypes
 from pprint import pprint
@@ -257,6 +263,33 @@ def jsonform(environ, start_response):
     start_response(status, headers)
     return result
 
+def table_rows(environ, start_response, dal, table_name, schema=None):
+    """Explore a table
+    """
+    status = '200 OK'
+    headers = [('Content-type', 'text/html')]
+
+    sql = 'select * from "%s"' % table_name
+    cursor = dal.db.cursor
+    cursor.execute(sql)
+    column_names = list(x[0] for x in cursor.description)  # or use schema... has more detail (at least for SQLite)
+    row = cursor.fetchone()
+    start_response(status, headers)
+    yield b'WIP, no paging/offset support</br>'
+    yield b'<table border>\n    <tr>'
+    for column_name in column_names:
+        tmp_str = "<th>" + escape_html(column_name) + "</th>"
+        yield tmp_str.encode('utf-8')
+    yield b'</tr>\n'
+    while row:
+        yield b'<tr>\n'
+        for column_value in row:
+            tmp_str = "<td>" + escape_html('%s' % column_value) + "</td>"  # FIXME string processng, for example boolean to check-box
+            yield tmp_str.encode('utf-8')
+        yield b'</tr>\n'
+        row = cursor.fetchone()
+    yield b'</table>\n'
+
 def table_explore(environ, start_response, path_info=None, path_info_list=None):
     """Explore a table
     """
@@ -265,8 +298,10 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
     result = []
 
     path_info_list = path_info_list or [x for x in environ['PATH_INFO'].split('/') if x]
-    if len(path_info_list) == 4 and path_info.endswith('/jsonform.json'):
-        return jsonform(environ, start_response)
+    if len(path_info_list) == 4:
+        if path_info.endswith('/jsonform.json'):
+            return jsonform(environ, start_response)
+
     #current_path = '/'.join(path_info_list)  # TODO current full URL
     database = path_info_list[1]
     table_name = path_info_list[2]
@@ -276,8 +311,13 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
     schema = dal.schema.get(table_name)
     if not schema:
         return not_found_404(environ, start_response)
+    if len(path_info_list) == 4:
+        if path_info_list[3] == 'rows':
+            return table_rows(environ, start_response, dal, table_name, schema)
+
     result.append(b'WIP')
-    result.append(b' <a href="jsonform.json">jsonform.json</a>')
+    result.append(b' <a href="jsonform.json">jsonform.json</a></br>')
+    result.append(b' <a href="rows/">rows</a></br>')
     start_response(status, headers)
     return result
 
