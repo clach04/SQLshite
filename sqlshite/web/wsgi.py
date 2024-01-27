@@ -365,21 +365,24 @@ def sql_editor(environ, start_response, dal):
     content_type, result = serve_file(filename)
     return result
 
-def table_rows(environ, start_response, dal, table_name, schema=None, sql=None):
+def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, bind_parameters=None, rowid_first_column_in_result=False):
     """Explore a table
     """
     status = '200 OK'
     headers = [('Content-type', 'text/html')]
 
     if sql:
-        generated_sql = False
+        rowid_first_column_in_result = rowid_first_column_in_result or False
     else:
-        generated_sql = True
+        rowid_first_column_in_result = True
     sql = sql or 'select rowid as sqlite_rowid, * from "%s"' % table_name
     cursor = dal.db.cursor
-    cursor.execute(sql)
+    if bind_parameters:
+        cursor.execute(sql, bind_parameters)
+    else:
+        cursor.execute(sql)
     column_names = list(x[0] for x in cursor.description)  # or use schema... has more detail (at least for SQLite)
-    if generated_sql:
+    if rowid_first_column_in_result:
         column_names = column_names[1:]
     row = cursor.fetchone()
     start_response(status, headers)
@@ -391,7 +394,7 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None):
     yield b'</tr>\n'
     while row:
         yield b'<tr>\n'
-        if generated_sql:
+        if rowid_first_column_in_result:
             rowid = row[0]
             row = row[1:]
             column_value_template = '<a href="/d/%s/%s/view/%d/">%%s</a>' % (dal.name, table_name, rowid)  # TODO escaping?
@@ -428,18 +431,54 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
         if path_info.endswith('/jsonform.json'):
             return jsonform(environ, start_response)
 
+    # form GET -- TODO POST support
+    # Returns a dictionary in which the values are lists
+    if environ.get('QUERY_STRING'):
+        get_dict = parse_qs(environ['QUERY_STRING'])
+    else:
+        get_dict = {}  # wonder if should make None to make clear its not there at all
+
+    q = get_dict.get('q')
+    if q:
+        try:
+            q = q[0]
+        except IndexError:
+            q = None
+
     #current_path = '/'.join(path_info_list)  # TODO current full URL
     database = path_info_list[1]
-    table_name = path_info_list[2]
     dal = global_dbs.get(database)
     if not dal:
         return not_found_404(environ, start_response)
+
     if len(path_info_list) == 3 and path_info_list[2] == 'sql':
         # maybe http://localhost/d/DATABASE_NAME/sql
         return sql_editor(environ, start_response, dal)
+
+    table_name = path_info_list[2]
     schema = dal.schema.get(table_name)
     if not schema:
         return not_found_404(environ, start_response)
+
+    # TODO Full Text Search support
+    if q:
+        # we have a quick search query
+        quick_search_column_name = None  # FIXME config lookup option
+        if quick_search_column_name is None:
+            # find first string type, and use that for simple like to TABLE scan the entire table
+            for metadata in schema:
+                column_name, python_type = metadata[0], metadata[1]
+                if python_type is str:
+                    quick_search_column_name = column_name
+                    break
+        log.debug('quick_search_column_name %r', quick_search_column_name)
+        if not q.startswith('%'):
+            q = '%' + q
+        if not q.endswith('%'):
+            q = q + '%'
+        sql = 'select rowid as sqlite_rowid, * from "%s" where "%s" like ?' % (table_name, quick_search_column_name)
+        return table_rows(environ, start_response, dal, table_name=table_name, schema=schema, sql=sql, bind_parameters=(q, ), rowid_first_column_in_result=True)
+
     if len(path_info_list) == 4:
         if path_info_list[3] == 'rows':
             return table_rows(environ, start_response, dal, table_name, schema)
@@ -484,6 +523,15 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
     result.append(b' <a href="rows/">rows</a></br>')
     result.append(b' <a href="view/1/">view 1</a></br>')
     result.append(b' <a href="add/">add</a></br>')
+    # TODO autofocus q field in form
+    # TODO live autosearch after pause in typing
+    result.append(b'''
+<form method="GET"  id="quick_search" name="quick_search">
+    quick search: <input type="text" name="q" /><br>
+    <input class="button-primary" value="Submit" type="submit">
+</form>
+
+    ''')
     start_response(status, headers)
     return result
 
@@ -606,6 +654,7 @@ def main(argv=None):
         f.close()
         config = json.loads(json_bytes)
     else:
+        # FIXME config lookup option quick_search_column_name in config for override
         config = {
             "databases": {
                 "memory": ":memory:",
