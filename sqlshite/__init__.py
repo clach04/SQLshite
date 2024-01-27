@@ -198,11 +198,12 @@ class DatabaseWrapper:
                         yes_no bool,
                         date date,
                         datetime timestamp,
-                        bottles_of_beer integer default 99
+                        bottles_of_beer integer default 99,
+                        "delimited id" varchar(30)
                     );
                 """)
-                cursor.execute("INSERT INTO kitchen_sink (number, str, float, yes_no, date, datetime) VALUES (?, ?, ?, ?, ?, ?)", (1, 'one', 1.234, True, '2000-01-01', '2000-01-01 00:00:00'))
-                cursor.execute("INSERT INTO kitchen_sink (number, str, float, yes_no, date, datetime, bottles_of_beer) VALUES (?, ?, ?, ?, ?, ?, ?)", (2, 'two', 2.987, False, '2000-12-25', '2000-12-25 11:12:13', 100))
+                cursor.execute("""INSERT INTO kitchen_sink (number, str, float, yes_no, date, datetime, "delimited id") VALUES (?, ?, ?, ?, ?, ?, ?)""", (1, 'one', 1.234, True, '2000-01-01', '2000-01-01 00:00:00', 'ein'))
+                cursor.execute("""INSERT INTO kitchen_sink (number, str, float, yes_no, date, datetime, bottles_of_beer, "delimited id") VALUES (?, ?, ?, ?, ?, ?, ?, ?)""", (2, 'two', 2.987, False, '2000-12-25', '2000-12-25 11:12:13', 100, 'dos'))
                 con.commit()
 
     def table_list(self):
