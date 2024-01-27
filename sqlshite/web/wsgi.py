@@ -403,6 +403,7 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None):
         yield b'</tr>\n'
         row = cursor.fetchone()
     yield b'</table>\n'
+    # TODO commit...
 
 def table_explore(environ, start_response, path_info=None, path_info_list=None):
     """Explore a table

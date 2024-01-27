@@ -10,7 +10,7 @@ Focused on single table work, rather than fk/pk relationship display.
 Primary aim:
 
   * no security - did you pay attention to the name of this project?
-  * Simple SQL queries (TODO determine transaction model)
+  * Simple SQL queries (TODO determine transaction model - autocommit is the current plan)
   * view/edit record, using [jsonschema](https://json-schema.org/) / jsonforms (unlike above where transaction model is unclear, autocommit on save)
 	  * https://www.google.com/search?q=jsonform
 	  * TODO research Python libs
@@ -42,16 +42,17 @@ Primary aim:
 
 Where `config.json` contains:
 
-{
-    "databases": {
-        "memory": ":memory:",
-        "mydb": "mydb.sqlite3"
-    }
-}
+	{
+		"databases": {
+			"memory": ":memory:",
+			"mydb": "mydb.sqlite3"
+		}
+	}
 
 Then open:
 
-  * http://localhost:8777/d/memory/
+  * http://localhost:8777/d/
+  * http://localhost:8777/d/memory/ - etc.
 
 
 ## Design
