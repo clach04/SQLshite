@@ -280,14 +280,13 @@ def generate_jsonform_schema(table_name, column_type_list):
         if column_default_value:
             result["schema"][column_name]["default"] = column_default_value
         if length_or_precision:
-            result["schema"][column_name]["maxLength"] = length_or_precision  # no effect with Playground as of 2024-01-27
+            result["schema"][column_name]["maxLength"] = length_or_precision
         if not is_nullable:
             result["schema"][column_name]["required"] = True
         if python_type is str:
             tmp_dict = {"key": column_name, "type": "textarea"}
             tmp_dict = {"key": column_name}
             if length_or_precision:
-                tmp_dict["maxLength"] = length_or_precision  # no effect with Playground as of 2024-01-27
                 if length_or_precision >= 100:
                     tmp_dict["type"] = "textarea"
             else:
@@ -371,7 +370,7 @@ class DataAccessLayer:
             print('********** table: %s' % tname)
             clist = db.column_type_list(tname)
             db_schema[tname] = clist
-            db_schema_jsonform[tname] = generate_jsonforms_schema(tname, clist)
+            db_schema_jsonform[tname] = generate_jsonform_schema(tname, clist)
 
         self.schema = db_schema
         self.jsonform = db_schema_jsonform
