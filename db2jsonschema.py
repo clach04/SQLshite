@@ -220,6 +220,10 @@ class DatabaseWrapper:
             result = []
             meta = self.cursor.execute("PRAGMA table_info('%s')" % table_name)
             for row in meta:
+                # FIXME is_nullable instead of column_notnull
+                # FIXME preserve DBMS type in addition to Python type
+                # FIXME have a length (TODO Precision and scale later for decimal)
+                # TODO use namedtupled
                 column_id, column_name, column_type, column_notnull, column_default_value, column_primary_key = row
                 column_primary_key = bool(column_primary_key)
                 column_type = sqlite_type_to_python(column_type)

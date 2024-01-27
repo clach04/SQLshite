@@ -37,6 +37,7 @@ AKA TODO
 	http://localhost/d - browse databases
 
 	http://localhost/d/DATABASE_NAME - browse tables
+	http://localhost/d/DATABASE_NAME/sql - issue SQL queries
 
 	http://localhost/d/DATABASE_NAME/TABLE_NAME - browse table (rows)?
 
