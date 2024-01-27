@@ -39,9 +39,17 @@ formatter = logging.Formatter("logging %(process)d %(thread)d %(asctime)s - %(fi
 ch.setFormatter(formatter)
 log.addHandler(ch)
 
+def force_bool(in_bool):
+    """Force string value into a Python boolean value
+    Everything is True with the exception of; false, off, and 0"""
+    value = str(in_bool).lower()
+    if value in ('false', 'off', '0'):
+        return False
+    else:
+        return True
 
 def bool_converter(in_value):
-    return bool(in_value)
+    return force_bool(in_value)
 
 # TODO uuid
 sqlite3.register_converter('bool', bool_converter)
