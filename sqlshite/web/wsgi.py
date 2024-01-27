@@ -278,11 +278,13 @@ def view_row(environ, start_response, dal, table_name, schema, rowid):
     if not jsonform_dict:
         return not_found_404(environ, start_response)
 
-    sql = 'select * from "%s" where rowid=?' % table_name
+    sql = 'select * from "%s" where rowid=?' % table_name  # Assume table really exists from previous caller sanity checks
     cursor = dal.db.cursor
     cursor.execute(sql, (rowid,))
     column_names = list(x[0] for x in cursor.description)  # or use schema... has more detail (at least for SQLite)
     row = cursor.fetchone()
+    if not row:
+        return not_found_404(environ, start_response)
     row_dict = dict(zip(column_names, row))
     jsonform = copy.copy(jsonform_dict)
     jsonform['value'] = row_dict
