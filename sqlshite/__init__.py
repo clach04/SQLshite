@@ -197,11 +197,12 @@ class DatabaseWrapper:
                         float float,
                         yes_no bool,
                         date date,
-                        datetime timestamp
+                        datetime timestamp,
+                        bottles_of_beer integer default 99
                     );
                 """)
                 cursor.execute("INSERT INTO kitchen_sink (number, str, float, yes_no, date, datetime) VALUES (?, ?, ?, ?, ?, ?)", (1, 'one', 1.234, True, '2000-01-01', '2000-01-01 00:00:00'))
-                cursor.execute("INSERT INTO kitchen_sink (number, str, float, yes_no, date, datetime) VALUES (?, ?, ?, ?, ?, ?)", (2, 'two', 2.987, False, '2000-12-25', '2000-12-25 11:12:13'))
+                cursor.execute("INSERT INTO kitchen_sink (number, str, float, yes_no, date, datetime, bottles_of_beer) VALUES (?, ?, ?, ?, ?, ?, ?)", (2, 'two', 2.987, False, '2000-12-25', '2000-12-25 11:12:13', 100))
                 con.commit()
 
     def table_list(self):
@@ -275,7 +276,8 @@ def generate_jsonform_schema(table_name, column_type_list):
               #"description": "some sort of description",
               "type": python_type_to_jsonform_type[python_type],
         }
-        # TODO default
+        if column_default_value:
+            result["schema"][column_name]["default"] = column_default_value
         if length_or_precision:
             result["schema"][column_name]["maxLength"] = length_or_precision  # no effect with Playground as of 2024-01-27
         if not is_nullable:
