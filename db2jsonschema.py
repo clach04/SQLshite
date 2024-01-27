@@ -5,6 +5,7 @@
 """SQLite3 database to jsonschema
 """
 
+import copy
 from datetime import date, datetime
 import json
 import logging
@@ -200,7 +201,7 @@ class DatabaseWrapper:
             raise NotImplementedError('non-SQLlite3 database %r' % self.driver)
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")  # ORDER BY?
         # alternatively https://www.sqlite.org/pragma.html#pragma_table_list
-        return self.cursor.fetchall()
+        return [x[0] for x in self.cursor.fetchall()]
 
     def column_type_list(self, table_name):
         # Assume single schema/current user with unqualified object names
@@ -358,6 +359,20 @@ def main(argv=None):
     print('jsonforms %r' % jsonforms)
     print('%s' % json.dumps(jsonforms, indent=4))
 
+    db_schema = {}
+    db_schema_jsonform = {}
+    for tname in table_list:
+        print('********** table: %s' % tname)
+        clist = db.column_type_list(tname)
+        db_schema[tname] = clist
+        db_schema_jsonform[tname] = generate_jsonforms_schema(tname, clist)
+    """
+    print('db_schema_jsonform= %r' % db_schema_jsonform)
+    print('db_schema= %r' % db_schema)
+    print('db_schema= %s' % json.dumps(db_schema, indent=4, default=str))
+    print('db_schema_jsonform= %s' % json.dumps(db_schema_jsonform, indent=4))
+    """
+
     sql = None
     sql = sql or 'select * from "%s"' % table_name
     try:
@@ -385,7 +400,8 @@ def main(argv=None):
             print(row_dict)
             # See https://github.com/jsonform/jsonform/wiki#previous
             # TODO generate_jsonform_schema(), add optional data/value parameter
-            jsonform = generate_jsonform_schema(table_name, column_type_list)
+            #jsonform = generate_jsonform_schema(table_name, column_type_list)
+            jsonform = copy.copy(db_schema_jsonform[table_name])
             jsonform['value'] = row_dict
             print('%s' % json.dumps(jsonform, indent=4, default=str))  # TODO date, datetime serialization - both directions
 
