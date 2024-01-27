@@ -61,6 +61,10 @@ TBD
 ## Questions
 
   * Datatype support. date/datetime
+  * how to handle add and edit errors, to avoid data loss:
+      * from database
+      * network?
+      * temp store in local storeage until get confirmation back?
 
 ### Datatypes
 
