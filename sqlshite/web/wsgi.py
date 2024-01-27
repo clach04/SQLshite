@@ -518,20 +518,7 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
         except ValueError:
             pass  # just view table
 
-    result.append(b'WIP')
-    result.append(b' <a href="jsonform.json">jsonform.json</a></br>')
-    result.append(b' <a href="rows/">rows</a></br>')
-    result.append(b' <a href="view/1/">view 1</a></br>')
-    result.append(b' <a href="add/">add</a></br>')
-    # TODO autofocus q field in form
-    # TODO live autosearch after pause in typing
-    result.append(b'''
-<form method="GET"  id="quick_search" name="quick_search">
-    quick search: <input type="text" name="q" /><br>
-    <input class="button-primary" value="Submit" type="submit">
-</form>
-
-    ''')
+    result.append(render_template('table_explorer.html', {}))
     start_response(status, headers)
     return result
 

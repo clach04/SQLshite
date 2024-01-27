@@ -59,14 +59,17 @@ Then open:
 
 ## Design
 
-AKA TODO
-
 ### URLs
+
+That have been implemented
 
 	http://localhost/ - browse databases
 	http://localhost/d - browse databases
 
 	http://localhost/d/DATABASE_NAME - browse tables
+	http://localhost/d/DATABASE_NAME/sql - issue SQL queries
+
+	http://localhost/d/DATABASE_NAME/TABLE_NAME?q=SEARCH_TERM - quick search the first string column with automatic (pre and post) wild card
 
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/jsonform.json - schema in jsonform - format
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/rows - view (TODO cleanup and maybe edit for desktop view) rows in table
@@ -75,9 +78,7 @@ AKA TODO
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/view/rowid - view
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/view/rowid/view.json - jsonform with schema and data only
 
-TODO
-
-	http://localhost/d/DATABASE_NAME/sql - issue SQL queries
+#### URLs TODO / TBD
 
 	http://localhost/d/DATABASE_NAME/TABLE_NAME - browse table (rows)?
 
