@@ -385,8 +385,24 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, 
         column_names = column_names[1:]
     row = cursor.fetchone()
     start_response(status, headers)
+    yield b'''<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+  <title>SQLshite rows</title>
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
+
+</head>
+<body>
+  <h1>SQLshite rows</h1>
+TODO table name in title and header</br>
+'''
     yield b'WIP, no paging/offset support</br>'
-    yield b'<table border>\n    <tr>'
+    yield b'<table border>\n    <tr>'  # table does not work well with default Bootstrap (at least on desktop
     for column_name in column_names:
         tmp_str = "<th>" + escape_html(column_name) + "</th>"
         yield tmp_str.encode('utf-8')
@@ -405,6 +421,10 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, 
         yield b'</tr>\n'
         row = cursor.fetchone()
     yield b'</table>\n'
+    yield b'''
+</body>
+</html>
+'''
     # TODO commit...
 
 def table_explore(environ, start_response, path_info=None, path_info_list=None):
