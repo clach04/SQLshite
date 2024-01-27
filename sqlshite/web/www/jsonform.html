@@ -39,14 +39,12 @@
           title: 'Age'
         }
       },
-      onSubmit: function (errors, values) {
-        if (errors) {
-          $('#res').html('<p>I beg your pardon?</p>');
-        } else {
-          $('#res').html('<p>Hello ' + values.name + '.' +
-            (values.age ? '<br/>You are ' + values.age + '.' : '') +
-            '</p>');
+      onSubmitValid: function (values) {
+        if (console && console.log) {
+          console.log('Values extracted from submitted form', values);
         }
+        window.alert('Form submitted. Values object:\n' +
+          JSON.stringify(values, null, 2));
       }
     });
   </script>
