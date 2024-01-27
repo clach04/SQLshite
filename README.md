@@ -54,6 +54,7 @@ TBD
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/add/PRIMARY_KEY - add/edit?
 
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/edit/PRIMARY_KEY - edit existing?
+ need to use hidden field for PK (compound pk?) in case pk is updated.
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/edit/PRIMARY_KEY/jsonform.json - schema+data in jsonform - format with data
 
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/rows - view (maybe edit for desktop view) rows in table
