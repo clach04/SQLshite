@@ -235,8 +235,8 @@ python_type_to_jsonform_type = {
     bool: "boolean",
     float: "number",  # TODO review, validation works but will see increment/decrement buttons which round up/down
     # TODO review `form`; `type` and `format`, https://github.com/jsonform/jsonform/wiki#gathering-preformatted-strings-other-html5-input-types implies date support
-    date: "string",  # FIXME - no support in jsonform? https://github.com/jsonform/jsonform/wiki#extending-json-form-with-your-own-fields
-    datetime: "string",  # FIXME - no support in jsonform?
+    date: "string",  # FIXME - in form use "date" NOTE default UI after edit is US, not ISO/ANSI :-( https://github.com/jsonform/jsonform/wiki#gathering-preformatted-strings-other-html5-input-types
+    datetime: "string",  # FIXME - in form use "datetime-local" (datetime supposed to work but does not date picker widget)
 }
 
 def generate_jsonform_schema(table_name, column_type_list):
