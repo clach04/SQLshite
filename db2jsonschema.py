@@ -377,7 +377,9 @@ def main(argv=None):
             row = cur.fetchone()
             print(row)
             row_dict = dict(zip(column_names, row))
-            print()
+            print(row_dict)
+            # See https://github.com/jsonform/jsonform/wiki#previous
+            # TODO generate_jsonform_schema(), add optional data/value parameter
             jsonform = generate_jsonform_schema(table_name, column_type_list)
             jsonform['value'] = row_dict
             print('%s' % json.dumps(jsonform, indent=4, default=str))  # TODO date, datetime serialization - both directions
