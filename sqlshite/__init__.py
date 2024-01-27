@@ -275,11 +275,23 @@ def generate_jsonform_schema(table_name, column_type_list):
               #"description": "some sort of description",
               "type": python_type_to_jsonform_type[python_type],
         }
-        # TODO default and length
+        # TODO default
+        if length_or_precision:
+            result["schema"][column_name]["maxLength"] = length_or_precision  # no effect with Playground as of 2024-01-27
         if not is_nullable:
             result["schema"][column_name]["required"] = True
         if python_type is str:
-            result["form"].append({"key": column_name, "type": "textarea"})
+            tmp_dict = {"key": column_name, "type": "textarea"}
+            tmp_dict = {"key": column_name}
+            if length_or_precision:
+                tmp_dict["maxLength"] = length_or_precision  # no effect with Playground as of 2024-01-27
+                if length_or_precision >= 100:
+                    tmp_dict["type"] = "textarea"
+            else:
+                # unknown size, assume large
+                tmp_dict["type"] = "textarea"
+            #result["form"].append({"key": column_name, "type": "textarea"})
+            result["form"].append(tmp_dict)
         elif python_type is date:
             result["form"].append({"key": column_name, "type": "date"})  # TODO "format"?
         elif python_type is datetime:
