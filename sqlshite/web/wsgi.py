@@ -257,6 +257,30 @@ def jsonform(environ, start_response):
     start_response(status, headers)
     return result
 
+def table_explore(environ, start_response, path_info=None, path_info_list=None):
+    """Explore a table
+    """
+    status = '200 OK'
+    headers = [('Content-type', 'text/html')]
+    result = []
+
+    path_info_list = path_info_list or [x for x in environ['PATH_INFO'].split('/') if x]
+    if len(path_info_list) == 4 and path_info.endswith('/jsonform.json'):
+        return jsonform(environ, start_response)
+    #current_path = '/'.join(path_info_list)  # TODO current full URL
+    database = path_info_list[1]
+    table_name = path_info_list[2]
+    dal = global_dbs.get(database)
+    if not dal:
+        return not_found_404(environ, start_response)
+    schema = dal.schema.get(table_name)
+    if not schema:
+        return not_found_404(environ, start_response)
+    result.append(b'WIP')
+    result.append(b' <a href="jsonform.json">jsonform.json</a>')
+    start_response(status, headers)
+    return result
+
 # WSGI application class
 class DalWebApp:
     def __call__(self, environ, start_response):
@@ -271,10 +295,8 @@ class DalWebApp:
                 return list_databases(environ, start_response)
             elif len(path_info_list) == 2:
                 return list_tables(environ, start_response)
-            elif len(path_info_list) == 3:
-                return jsonform(environ, start_response)
-            elif len(path_info_list) == 4 and path_info.endswith('/jsonform.json'):
-                return jsonform(environ, start_response)
+            elif len(path_info_list) in (3, 4):
+                return table_explore(environ, start_response, path_info=path_info, path_info_list=path_info_list)
 
         # Returns a dictionary in which the values are lists
         if environ.get('QUERY_STRING'):
