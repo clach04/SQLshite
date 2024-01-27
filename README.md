@@ -67,6 +67,10 @@ AKA TODO
 
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/jsonform.json - schema in jsonform - format
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/rows - view (TODO cleanup and maybe edit for desktop view) rows in table
+	http://localhost/d/DATABASE_NAME/TABLE_NAME/add - add TODO actually INSERT into table
+	http://localhost/d/DATABASE_NAME/TABLE_NAME/rowid - currently dumps schema and value
+	http://localhost/d/DATABASE_NAME/TABLE_NAME/view/rowid - view
+	http://localhost/d/DATABASE_NAME/TABLE_NAME/view/rowid/view.json - jsonform with schema and data only
 
 TODO
 
@@ -84,7 +88,6 @@ TBD
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/PRIMARY_KEY - edit/view?
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/row/PRIMARY_KEY - view?
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/view/PRIMARY_KEY - view?
-	http://localhost/d/DATABASE_NAME/TABLE_NAME/add - add (with edit dialog)?
 
 	http://localhost/d/DATABASE_NAME/TABLE_NAME/edit/PRIMARY_KEY - edit existing?
  need to use hidden field for PK (compound pk?) in case pk is updated. Potentially use readonly (especially for view)

@@ -366,6 +366,12 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
     result = []
 
     path_info_list = path_info_list or [x for x in environ['PATH_INFO'].split('/') if x]
+    if '?' not in path_info and not path_info.endswith('.json') and not path_info.endswith('/'):
+        # dumb redirect
+        log.debug('**** REDIRECT %r' % (path_info, ))
+        start_response('302 Found', [('Location', path_info + '/')])
+        return b'redirect with trailing /'
+
     if len(path_info_list) == 4:
         if path_info.endswith('/jsonform.json'):
             return jsonform(environ, start_response)
