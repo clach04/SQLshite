@@ -262,6 +262,10 @@ def generate_jsonform_schema(table_name, column_type_list):
             result["schema"][column_name]["required"] = True
         if column_type is str:
             result["form"].append({"key": column_name, "type": "textarea"})
+        elif column_type is date:
+            result["form"].append({"key": column_name, "type": "date"})  # TODO "format"?
+        elif column_type is datetime:
+            result["form"].append({"key": column_name, "type": "datetime-local"})  # TODO "format"? And report bug upstream that non-local doesn't display properly?
         else:
             result["form"].append(column_name)
     result["form"].append({
