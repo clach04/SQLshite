@@ -233,7 +233,11 @@ def list_tables(environ, start_response):
     start_response(status, headers)
     return result
 
-def table_explore(environ, start_response):
+def jsonform(environ, start_response):
+    """Serves a jsonform suitable for use with:
+          * https://jsonform.github.io/jsonform/playground/
+          * https://github.com/jsonform/jsonform
+    """
     status = '200 OK'
     headers = [('Content-type', 'application/json')]
     result = []
@@ -246,10 +250,10 @@ def table_explore(environ, start_response):
     dal = global_dbs.get(database)
     if not dal:
         return not_found_404(environ, start_response)
-    jsonform = dal.jsonform.get(table_name)
-    if not jsonform:
+    jsonform_dict = dal.jsonform.get(table_name)
+    if not jsonform_dict:
         return not_found_404(environ, start_response)
-    result.append(json.dumps(jsonform, indent=4))
+    result.append(json.dumps(jsonform_dict, indent=4))
     start_response(status, headers)
     return result
 
@@ -268,7 +272,9 @@ class DalWebApp:
             elif len(path_info_list) == 2:
                 return list_tables(environ, start_response)
             elif len(path_info_list) == 3:
-                return table_explore(environ, start_response)
+                return jsonform(environ, start_response)
+            elif len(path_info_list) == 4 and path_info.endswith('/jsonform.json'):
+                return jsonform(environ, start_response)
 
         # Returns a dictionary in which the values are lists
         if environ.get('QUERY_STRING'):
