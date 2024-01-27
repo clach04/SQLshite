@@ -22,11 +22,19 @@
   <h1>Getting started with JSON Form</h1>
   <form></form>
   <div id="res" class="alert"></div>
+
+        <div class="col-md-7">
+          <h2>Generated form</h2>
+          <div id="result" class="well">(please wait)</div>
+        </div>
+
   <script type="text/javascript" src="/js/jquery.min.js"></script>
   <script type="text/javascript" src="/js/underscore.js"></script>
   <script type="text/javascript" src="/js/jsv.js"></script>
   <script type="text/javascript" src="/js/jsonform.js"></script>
   <script type="text/javascript">
+        var jsonform_dict = null;
+
     $('form').jsonForm({
       schema: {
         name: {
@@ -47,6 +55,30 @@
           JSON.stringify(values, null, 2));
       }
     });
+
+        var loadExample = function (example) {
+            $.ajax({
+                //url: 'examples/' + example + '.json',
+                url: '/d/memory/kitchen_sink/jsonform.json',
+                dataType: 'text'
+            }).done(function (json_string) {
+                if (console && console.log) {
+                    console.log('json string from server', json_string);
+                }
+                jsonform_dict = JSON.parse(json_string);  // TODO error handling
+                if (console && console.log) {
+                    //console.log('json string converted ', JSON.stringify(jsonform_dict, null, 2));
+                    console.log('json string converted ', JSON.stringify(jsonform_dict, null));
+                }
+                $('#result').html('<form id="result-form" class="form-vertical"></form>');
+                $('#result-form').jsonForm(jsonform_dict);
+            }).fail(function () {
+                $('#result').html('Unable to load json!');
+        });
+        };
+        loadExample('dummy');
+
+
   </script>
 </body>
 </html>
