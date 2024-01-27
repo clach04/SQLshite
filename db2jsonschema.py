@@ -233,7 +233,8 @@ python_type_to_jsonform_type = {
     str: "string",
     int: "integer",
     bool: "boolean",
-    float: "number",  # TODO review, validation works but will see increment/decrement buttons which round up/down 
+    float: "number",  # TODO review, validation works but will see increment/decrement buttons which round up/down
+    # TODO review `form`; `type` and `format`, https://github.com/jsonform/jsonform/wiki#gathering-preformatted-strings-other-html5-input-types implies date support
     date: "string",  # FIXME - no support in jsonform? https://github.com/jsonform/jsonform/wiki#extending-json-form-with-your-own-fields
     datetime: "string",  # FIXME - no support in jsonform?
 }
