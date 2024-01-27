@@ -379,6 +379,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
+    print('Python %s on %s' % (sys.version, sys.platform))
     try:
         connection_string = argv[1]  # dbname
     except IndexError:
