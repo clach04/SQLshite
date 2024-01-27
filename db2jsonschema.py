@@ -236,7 +236,7 @@ python_type_to_jsonform_type = {
 def generate_jsonform_schema(table_name, column_type_list):
     """Generate schema suitable for https://jsonform.github.io/jsonform/playground/index.html?example=schema-basic
     NOTE schema has no order by....
-    TODO emit form with button and text area
+    TODO emit form with text area
 
     {
       "key": "comment",
@@ -263,6 +263,10 @@ def generate_jsonform_schema(table_name, column_type_list):
         if column_notnull:
             result["schema"][column_name]["required"] = True
         result["form"].append(column_name)
+    result["form"].append({
+      "type": "submit",
+      "title": "Submit"
+    })
     return result
 
 # https://jsonforms.io/examples/basic/
