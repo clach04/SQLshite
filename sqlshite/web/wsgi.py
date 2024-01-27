@@ -518,7 +518,7 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
         except ValueError:
             pass  # just view table
 
-    result.append(render_template('table_explorer.html', {}))
+    result.append(render_template('table_explorer.html', {'table_name': table_name}))
     start_response(status, headers)
     return result
 
