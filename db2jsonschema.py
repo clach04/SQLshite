@@ -49,7 +49,7 @@ sqlite3.register_converter('boolean', bool_converter)
 # Naive timezone-unaware https://docs.python.org/3/library/sqlite3.html#sqlite3-adapter-converter-recipes
 def convert_date(val):
     """Convert ISO 8601 date to datetime.date object."""
-    return date.fromisoformat(val.decode())
+    return date.fromisoformat(val.decode())  # FIXME Python 3.x - BUT not 3.6.9
 
 def convert_datetime(val):
     """Convert ISO 8601 datetime to datetime.datetime object."""
@@ -59,10 +59,15 @@ def convert_timestamp_num_secs(val):
     """Convert Unix epoch timestamp to datetime.datetime object."""
     return datetime.fromtimestamp(int(val))
 
-sqlite3.register_converter("date", convert_date)
-sqlite3.register_converter("datetime", convert_datetime)
-sqlite3.register_converter("timestamp", convert_datetime)
-sqlite3.register_converter("epoch_seconds", convert_timestamp_num_secs)
+try:
+    date.fromisoformat
+    sqlite3.register_converter("date", convert_date)
+    sqlite3.register_converter("datetime", convert_datetime)
+    sqlite3.register_converter("timestamp", convert_datetime)
+    sqlite3.register_converter("epoch_seconds", convert_timestamp_num_secs)
+except AttributeError:
+    pass  # TODO reimplement - see jyjdbc code
+
 # DeprecationWarning: The default timestamp converter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
 #   https://docs.python.org/3/library/sqlite3.html#default-adapters-and-converters-deprecated
 #   https://docs.python.org/3/library/sqlite3.html#sqlite3-adapter-converter-recipes
@@ -354,7 +359,7 @@ def main(argv=None):
         con = db.connection
         cur = db.cursor
 
-        sql = 'select * from "%s" LIMIT 1' % table_name
+        sql = 'select * from "%s"' % table_name
         print('SQL: %r' % (sql,))
         cur.execute(sql)
         print('%r' % (cur.description,))
@@ -364,13 +369,18 @@ def main(argv=None):
 
         if db.driver == sqlite3:
             sql = 'select rowid, * from "%s" LIMIT 1' % table_name
-            sql = 'select rowid, * from "%s"' % table_name
             print('SQL: %r' % (sql,))
             cur.execute(sql)
             print('%r' % (cur.description,))
             column_names = list(x[0] for x in cur.description)
             print('%r' % column_names)
-            print(cur.fetchall())
+            row = cur.fetchone()
+            print(row)
+            row_dict = dict(zip(column_names, row))
+            print()
+            jsonform = generate_jsonform_schema(table_name, column_type_list)
+            jsonform['value'] = row_dict
+            print('%s' % json.dumps(jsonform, indent=4, default=str))  # TODO date, datetime serialization - both directions
 
         cur.close()
         con.commit()
