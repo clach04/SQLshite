@@ -70,6 +70,12 @@ log.addHandler(ch)
 
 log.setLevel(level=logging.DEBUG)
 
+try:
+    unicode
+except NameError:
+    # Python 3
+    unicode = str
+
 DEFAULT_SERVER_PORT = 8777
 
 def serve_file(path, content_type=None):
@@ -420,7 +426,7 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, 
         else:
             column_value_template = '%s'
         for column_value in row:
-            tmp_str = "<td>" + column_value_template % escape_html(str(column_value)) + "</td>"  # FIXME string processng, for example boolean to check-box
+            tmp_str = "<td>" + column_value_template % escape_html(unicode(column_value)) + "</td>"  # FIXME string processng, for example boolean to check-box
             yield tmp_str.encode('utf-8')
         yield b'</tr>\n'
         row = cursor.fetchone()
