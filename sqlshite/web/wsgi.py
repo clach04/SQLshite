@@ -363,14 +363,14 @@ def sql_editor(environ, start_response, dal):
             sql = None
 
     if sql:
-        return table_rows(environ, start_response, dal, table_name=None, schema=None, sql=sql)  # TODO some way to indicate this query came from raw SQL
+        return table_rows(environ, start_response, dal, table_name=None, schema=None, sql=sql, show_sql=True)
     # else
     filename = os.path.join(host_dir, 'sql_editor.html')
     start_response(status, headers)
     content_type, result = serve_file(filename)
     return result
 
-def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, bind_parameters=None, rowid_first_column_in_result=False):
+def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, bind_parameters=None, rowid_first_column_in_result=False, show_sql=False):
     """Explore a table
     """
     status = '200 OK'
@@ -407,6 +407,9 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, 
   <h1>{{table_name}} rows</h1>
 '''.replace('{{table_name}}', escape_html(table_name or 'user SQL query')).encode('utf-8')
     yield b'WIP, no paging/offset support</br>'
+    if show_sql:
+        # TODO code block and/or syntax highlighting
+        yield 'SQL: {{sql}}'.replace('{{sql}}', escape_html(sql)).encode('utf-8')
     #yield b'<table border>\n    <tr>'  # table does not work well with default Bootstrap (at least on desktop, much better on mobile)
     yield b'<table  class="table table-striped">\n'
     yield b'<thead class="thead-dark">'  # this is not working, Bootstrap 4.0 feature?
