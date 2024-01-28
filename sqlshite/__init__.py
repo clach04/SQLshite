@@ -197,6 +197,7 @@ class DatabaseWrapper:
                 cursor.execute("INSERT INTO my_numbers (number, english, spanish) VALUES (?, ?, ?)", (2, 'two', 'dos'))
                 cursor.execute("INSERT INTO my_numbers (number, english, spanish) VALUES (?, ?, ?)", (3, 'three', 'tres'))
                 cursor.execute("INSERT INTO my_numbers (number, english, spanish) VALUES (?, ?, ?)", (4, 'four', 'cuatro'))
+                cursor.execute("INSERT INTO my_numbers (number, english, spanish) VALUES (?, ?, ?)", (26, 'twenty six', u'veintis\xe9is'))
                 cursor.execute("""
                     CREATE TABLE kitchen_sink (
                         -- assume rowid, integer, incrementing primary key
