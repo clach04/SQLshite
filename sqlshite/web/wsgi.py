@@ -399,7 +399,7 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, 
 </head>
 <body>
   <h1>{{table_name}} rows</h1>
-'''.replace('{{table_name}}', escape_html(table_name))
+'''.replace('{{table_name}}', escape_html(table_name or 'user SQL query'))
     yield b'WIP, no paging/offset support</br>'
     #yield b'<table border>\n    <tr>'  # table does not work well with default Bootstrap (at least on desktop, much better on mobile)
     yield b'<table  class="table table-striped">\n'
