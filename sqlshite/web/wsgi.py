@@ -385,7 +385,7 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, 
         column_names = column_names[1:]
     row = cursor.fetchone()
     start_response(status, headers)
-    yield b'''<!doctype html>
+    yield '''<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -393,20 +393,24 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, 
     <meta name="description" content="">
     <meta name="author" content="">
 
-  <title>SQLshite rows</title>
+  <title>{{table_name}} SQLshite rows</title>
   <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
 
 </head>
 <body>
-  <h1>SQLshite rows</h1>
-TODO table name in title and header</br>
-'''
+  <h1>{{table_name}} rows</h1>
+'''.replace('{{table_name}}', escape_html(table_name))
     yield b'WIP, no paging/offset support</br>'
-    yield b'<table border>\n    <tr>'  # table does not work well with default Bootstrap (at least on desktop
+    #yield b'<table border>\n    <tr>'  # table does not work well with default Bootstrap (at least on desktop, much better on mobile)
+    yield b'<table  class="table table-striped">\n'
+    yield b'<thead class="thead-dark">'  # this is not working, Bootstrap 4.0 feature?
+    yield b'    <tr>'
     for column_name in column_names:
         tmp_str = "<th>" + escape_html(column_name) + "</th>"
         yield tmp_str.encode('utf-8')
     yield b'</tr>\n'
+    yield b'</thead>\n'
+    yield b'<tbody>\n'
     while row:
         yield b'<tr>\n'
         if rowid_first_column_in_result:
@@ -420,6 +424,7 @@ TODO table name in title and header</br>
             yield tmp_str.encode('utf-8')
         yield b'</tr>\n'
         row = cursor.fetchone()
+    yield b'</tbody>\n'
     yield b'</table>\n'
     yield b'''
 </body>
