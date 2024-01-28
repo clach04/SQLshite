@@ -18,7 +18,7 @@ Primary aim:
 	  * TODO research Python libs
           * https://github.com/RussellLuo/jsonform
           * https://github.com/python-jsonschema/jsonschema
-	  * https://github.com/jsonform/jsonform/ -  Bootstrap 3
+	  * https://github.com/jsonform/jsonform/ -  Bootstrap 3 (end of support as of 2019, https://blog.getbootstrap.com/2019/07/24/lts-plan/#:~:text=Starting%20today%2C%20Bootstrap%203%20will,security%20updates%2C%20and%20documentation%20updates.)
 		* https://jsonform.github.io/jsonform/playground/index.html
 		* https://jsonform.github.io/jsonform/
 	  * https://github.com/eclipsesource/jsonforms - React, Angular and/or Vue
