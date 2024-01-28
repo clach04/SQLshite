@@ -417,7 +417,9 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, 
     yield b'</tr>\n'
     yield b'</thead>\n'
     yield b'<tbody>\n'
+    row_count = 0
     while row:
+        row_count += 1
         yield b'<tr>\n'
         if rowid_first_column_in_result:
             rowid = row[0]
@@ -432,6 +434,8 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, 
         row = cursor.fetchone()
     yield b'</tbody>\n'
     yield b'</table>\n'
+    row_count_str= '%d rows\n' % (row_count, )
+    yield row_count_str.encode('utf-8')
     yield b'''
 </body>
 </html>
