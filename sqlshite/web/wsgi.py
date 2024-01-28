@@ -382,64 +382,71 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, 
         rowid_first_column_in_result = True
     sql = sql or 'select rowid as sqlite_rowid, * from "%s"' % table_name
     cursor = dal.db.cursor
-    if bind_parameters:
-        cursor.execute(sql, bind_parameters)
-    else:
-        cursor.execute(sql)
-    column_names = list(x[0] for x in cursor.description)  # or use schema... has more detail (at least for SQLite)
-    if rowid_first_column_in_result:
-        column_names = column_names[1:]
-    row = cursor.fetchone()
     start_response(status, headers)
-    yield '''<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-  <title>{{table_name}} SQLshite rows</title>
-  <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
-
-</head>
-<body>
-  <h1>{{table_name}} rows</h1>
-'''.replace('{{table_name}}', escape_html(table_name or 'user SQL query')).encode('utf-8')
-    yield b'WIP, no paging/offset support</br>'
-    if show_sql:
-        # TODO code block and/or syntax highlighting
-        yield 'SQL: {{sql}}'.replace('{{sql}}', escape_html(sql)).encode('utf-8')
-    #yield b'<table border>\n    <tr>'  # table does not work well with default Bootstrap (at least on desktop, much better on mobile)
-    yield b'<table  class="table table-striped">\n'
-    yield b'<thead class="thead-dark">'  # this is not working, Bootstrap 4.0 feature?
-    yield b'    <tr>'
-    for column_name in column_names:
-        tmp_str = "<th>" + escape_html(column_name) + "</th>"
-        yield tmp_str.encode('utf-8')
-    yield b'</tr>\n'
-    yield b'</thead>\n'
-    yield b'<tbody>\n'
-    row_count = 0
-    while row:
-        row_count += 1
-        yield b'<tr>\n'
-        if rowid_first_column_in_result:
-            rowid = row[0]
-            row = row[1:]
-            column_value_template = '<a href="/d/%s/%s/view/%d/">%%s</a>' % (dal.name, table_name, rowid)  # TODO escaping?
+    try:
+        if bind_parameters:
+            cursor.execute(sql, bind_parameters)
         else:
-            column_value_template = '%s'
-        for column_value in row:
-            tmp_str = "<td>" + column_value_template % escape_html(unicode(column_value)) + "</td>"  # FIXME string processng, for example boolean to check-box
+            cursor.execute(sql)
+        column_names = list(x[0] for x in cursor.description)  # or use schema... has more detail (at least for SQLite)
+        if rowid_first_column_in_result:
+            column_names = column_names[1:]
+        row = cursor.fetchone()
+        yield '''<!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+      <title>{{table_name}} SQLshite rows</title>
+      <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
+
+    </head>
+    <body>
+      <h1>{{table_name}} rows</h1>
+    '''.replace('{{table_name}}', escape_html(table_name or 'user SQL query')).encode('utf-8')
+        yield b'WIP, no paging/offset support</br>'
+        if show_sql:
+            # TODO code block and/or syntax highlighting
+            yield 'SQL: {{sql}}'.replace('{{sql}}', escape_html(sql)).encode('utf-8')
+        #yield b'<table border>\n    <tr>'  # table does not work well with default Bootstrap (at least on desktop, much better on mobile)
+        yield b'<table  class="table table-striped">\n'
+        yield b'<thead class="thead-dark">'  # this is not working, Bootstrap 4.0 feature?
+        yield b'    <tr>'
+        for column_name in column_names:
+            tmp_str = "<th>" + escape_html(column_name) + "</th>"
             yield tmp_str.encode('utf-8')
         yield b'</tr>\n'
-        row = cursor.fetchone()
-    yield b'</tbody>\n'
-    yield b'</table>\n'
-    row_count_str= '%d rows\n' % (row_count, )
-    yield row_count_str.encode('utf-8')
-    yield b'''
+        yield b'</thead>\n'
+        yield b'<tbody>\n'
+        row_count = 0
+        while row:
+            row_count += 1
+            yield b'<tr>\n'
+            if rowid_first_column_in_result:
+                rowid = row[0]
+                row = row[1:]
+                column_value_template = '<a href="/d/%s/%s/view/%d/">%%s</a>' % (dal.name, table_name, rowid)  # TODO escaping?
+            else:
+                column_value_template = '%s'
+            for column_value in row:
+                tmp_str = "<td>" + column_value_template % escape_html(unicode(column_value)) + "</td>"  # FIXME string processng, for example boolean to check-box
+                yield tmp_str.encode('utf-8')
+            yield b'</tr>\n'
+            row = cursor.fetchone()
+        yield b'</tbody>\n'
+        yield b'</table>\n'
+        row_count_str= '%d rows\n' % (row_count, )
+        yield row_count_str.encode('utf-8')
+    except Exception as info:
+        log.error('sql error %r', info)
+        # TODO driver exeception
+        error_str ='<br><br>\n\n<span style="color:red">** ERROR **</span><br><br>' + escape_html(repr(info)) + escape_html(str(info)) +'<br><br>'
+        yield error_str.encode('utf-8')
+    finally:
+        yield b'''
 </body>
 </html>
 '''
