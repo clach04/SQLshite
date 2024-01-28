@@ -23,14 +23,11 @@
   </style>
 </head>
 <body>
-  <h1>SQLshite</h1>
-  <form></form>
-  <div id="res" class="alert"></div>
-
-        <div class="col-md-7">
-          <h2>{{table_name}}</h2>
-          <div id="result" class="well">(please wait)</div>
-        </div>
+    <div id="res" class="alert"></div>  <!-- TODO make red -->
+    <div class="col-md-7">
+      <h2>{{table_name}}</h2>
+      <div id="result" class="well">(please wait)</div>
+    </div>
 
   <script type="text/javascript" src="/js/jquery.min.js"></script>
   <script type="text/javascript" src="/js/underscore.js"></script>
@@ -42,26 +39,32 @@
         var loadExample = function (example) {
             $.ajax({
                 //url: 'examples/' + example + '.json',
-                url: 'view.json',  // uses relative path
+                url: 'badview.json',  // uses relative path
                 dataType: 'text'
             }).done(function (json_string) {
                 if (console && console.log) {
                     console.log('json string from server', json_string);
                 }
-                jsonform_dict = JSON.parse(json_string);  // TODO error handling
-                if (console && console.log) {
-                    //console.log('json string converted ', JSON.stringify(jsonform_dict, null, 2));
-                    console.log('json string converted ', JSON.stringify(jsonform_dict, null));
+                try {
+                    jsonform_dict = JSON.parse(json_string);  // TODO error handling, populate alert
+                    if (console && console.log) {
+                        //console.log('json string converted ', JSON.stringify(jsonform_dict, null, 2));
+                        console.log('json string converted ', JSON.stringify(jsonform_dict, null));
+                    }
+                    $('#result').html('<form id="result-form" class="form-vertical" method="POST"></form>');
+                    $('#result-form').jsonForm(jsonform_dict);
+                } catch (e) {
+                    $('#res').html('got bad json');
+                    if (console && console.log) {
+                        console.log('json string parse error', json_string);
+                        console.error(e);
+                    }
                 }
-                $('#result').html('<form id="result-form" class="form-vertical" method="POST"></form>');
-                $('#result-form').jsonForm(jsonform_dict);
             }).fail(function () {
                 $('#result').html('Unable to load json!');
         });
         };
         loadExample('dummy');
-
-
   </script>
 </body>
 </html>
