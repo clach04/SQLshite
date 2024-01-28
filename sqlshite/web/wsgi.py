@@ -440,9 +440,8 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, 
         yield b'</table>\n'
         row_count_str= '%d rows\n' % (row_count, )
         yield row_count_str.encode('utf-8')
-    except Exception as info:
+    except dal.db.driver.Error as info:  # better than Exception as info:
         log.error('sql error %r', info)
-        # TODO driver exeception
         error_str ='<br><br>\n\n<span style="color:red">** ERROR **</span><br><br>' + escape_html(repr(info)) + escape_html(str(info)) +'<br><br>'
         yield error_str.encode('utf-8')
     finally:
