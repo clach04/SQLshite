@@ -24,8 +24,6 @@ Primary aim:
 	  * https://github.com/eclipsesource/jsonforms - React, Angular and/or Vue
 		* https://jsonforms.io/examples/basic
 		* https://jsonforms.io/
-  * view records, using https://github.com/olifolkerd/tabulator
-      * inputFor at array - https://tabulator.info/docs/5.5/data#import-data
   * quick search, with add (either on no match or no good match) using search term as initial value
 	  * searching either a defined column, the first column, or all columns
 
