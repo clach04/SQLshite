@@ -402,7 +402,44 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, 
 
       <title>{{table_name}} SQLshite rows</title>
       <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
+      <script type="text/javascript" src="/js/jquery.min.js"></script>
+      <script type="text/javascript" src="/js/tablesort.min.js"></script>
 
+        <style>
+            th[role=columnheader]:not(.no-sort) {
+                cursor: pointer;
+            }
+
+            th[role=columnheader]:not(.no-sort):after {
+                content: '';
+                float: right;
+                margin-top: 7px;
+                border-width: 0 4px 4px;
+                border-style: solid;
+                border-color: #404040 transparent;
+                visibility: hidden;
+                opacity: 0;
+                -ms-user-select: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                user-select: none;
+            }
+
+            th[aria-sort=ascending]:not(.no-sort):after {
+                border-bottom: none;
+                border-width: 4px 4px 0;
+            }
+
+            th[aria-sort]:not(.no-sort):after {
+                visibility: visible;
+                opacity: 0.4;
+            }
+
+            th[role=columnheader]:not(.no-sort):hover:after {
+                visibility: visible;
+                opacity: 1;
+            }
+        </style>
     </head>
     <body>
       <h1>{{table_name}} rows</h1>
@@ -412,7 +449,7 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, 
             # TODO code block and/or syntax highlighting
             yield 'SQL: {{sql}}'.replace('{{sql}}', escape_html(sql)).encode('utf-8')
         #yield b'<table border>\n    <tr>'  # table does not work well with default Bootstrap (at least on desktop, much better on mobile)
-        yield b'<table  class="table table-striped">\n'
+        yield b'<table  class="table table-striped" id="sqlrows" name="sqlrows">\n'
         yield b'<thead class="thead-dark">'  # this is not working, Bootstrap 4.0 feature?
         yield b'    <tr>'
         for column_name in column_names:
@@ -438,6 +475,18 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, 
             row = cursor.fetchone()
         yield b'</tbody>\n'
         yield b'</table>\n'
+        yield b'<script>\n'
+        yield b'''
+function onPageReady() {
+  // http://tristen.ca/tablesort/demo/ and https://github.com/tristen/tablesort
+  new Tablesort(document.getElementById('sqlrows'));
+}
+
+// Run the above function when the page is loaded & ready
+// TODO search all classes with sortable, instead of per table-id
+document.addEventListener('DOMContentLoaded', onPageReady, false);
+        \n'''
+        yield b'</script>\n'
         row_count_str= '%d rows\n' % (row_count, )
         yield row_count_str.encode('utf-8')
     except dal.db.driver.Error as info:  # better than Exception as info:
