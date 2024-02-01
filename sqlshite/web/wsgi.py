@@ -626,6 +626,8 @@ class DalWebApp:
         print('DalWebApp: path_info %r' % path_info)
         print('DalWebApp: path_info_list %r' % path_info_list)
 
+        if path_info == '/':
+            path_info = '/index.html'
         # see if there is a flat file on the filesystem
         if path_info and path_info.startswith('/'): # assuming ALWAYS_RETURN_404=false (or at least not true)
             filename = os.path.join(host_dir, path_info[1:])
