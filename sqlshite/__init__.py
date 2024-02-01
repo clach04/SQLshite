@@ -96,7 +96,7 @@ def sql_type_length(datatype_name):
         return int(length_string)  # assume length only, no scale
     return None
 
-def sqlite_type_to_python(datatype_name):
+def sqlite_type_to_python(datatype_name, unknown_type=None):
     """datatype definition string from SQLite pragma table info to Python type lookup
     Ignores length information, e.g. VARCHAR(10) is returned as a string type, max length is ignored.
     """
@@ -128,7 +128,11 @@ def sqlite_type_to_python(datatype_name):
     open_paren_index = datatype_name.find('(')
     if open_paren_index >= 0:
         datatype_name = datatype_name[:open_paren_index]
-    return sqlite_type_dict[datatype_name]  # TODO consider returning string for misses
+    if unknown_type:
+        result = sqlite_type_dict.get(datatype_name, unknown_type)
+    else:
+        result = sqlite_type_dict[datatype_name]
+    return result
 
 def con2driver(connection_string):
     if connection_string == ':memory:':
@@ -213,6 +217,14 @@ class DatabaseWrapper:
                 """)
                 cursor.execute("""INSERT INTO kitchen_sink (number, str, float, yes_no, date, datetime, "delimited id") VALUES (?, ?, ?, ?, ?, ?, ?)""", (1, 'one', 1.234, True, '2000-01-01', '2000-01-01 00:00:00', 'ein'))
                 cursor.execute("""INSERT INTO kitchen_sink (number, str, float, yes_no, date, datetime, bottles_of_beer, "delimited id") VALUES (?, ?, ?, ?, ?, ?, ?, ?)""", (2, 'two', 2.987, False, '2000-12-25', '2000-12-25 11:12:13', 100, 'dos'))
+                cursor.execute("""
+                    CREATE TABLE not_real_types (
+                        -- assume rowid, integer, incrementing primary key
+                        col1 strng,  -- mispelled
+                        col2 made_up_type
+                    );
+                """)
+                cursor.execute("INSERT INTO not_real_types (col1, col2) VALUES (?, ?)", ('one', 'uno'))
                 con.commit()
 
     def table_list(self):
@@ -247,7 +259,7 @@ class DatabaseWrapper:
                 # TODO use namedtupled
                 column_id, column_name, column_type, column_notnull, column_default_value, column_primary_key = row
                 column_primary_key = bool(column_primary_key)
-                python_type = sqlite_type_to_python(column_type)
+                python_type = sqlite_type_to_python(column_type, unknown_type=str)  # TODO make an option?
                 dbms_type = column_type
                 is_nullable = not column_notnull
                 length_or_precision = sql_type_length(dbms_type)
