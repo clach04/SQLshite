@@ -66,6 +66,7 @@ That have been implemented
 
 	http://localhost/d/DATABASE_NAME - browse tables
 	http://localhost/d/DATABASE_NAME/sql - issue SQL queries
+	http://localhost/d/DATABASE_NAME/rescan - rescan metadata
 
 	http://localhost/d/DATABASE_NAME/TABLE_NAME?q=SEARCH_TERM - quick search the first string column with automatic (pre and post) wild card
 

@@ -241,6 +241,7 @@ def list_databases(environ, start_response):
 
     path_info = environ['PATH_INFO']
     path_info_list = [x for x in path_info.split('/') if x]
+    # TODO add option to rescan ALL databases
     result.append(render_template('list_databases.html', {'databases': [database_name for database_name in global_dbs]}))
     start_response(status, headers)
     return result
@@ -327,6 +328,18 @@ def view_html(environ, start_response, dal, table_name, schema, rowid):
 
     # TODO use rowid?
     result.append(render_template('viewform.html', {'table_name': table_name}))
+    start_response(status, headers)
+    return result
+
+def rescan(environ, start_response, dal):
+    """Explore a table
+    """
+    status = '200 OK'
+    headers = [('Content-type', 'text/html')]
+    result = []
+
+    dal.scan_schema()
+    result.append(b'rescan complete')  # TODO/FIXME replace with a template, redirect to parent?
     start_response(status, headers)
     return result
 
@@ -543,9 +556,12 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
     if not dal:
         return not_found_404(environ, start_response)
 
-    if len(path_info_list) == 3 and path_info_list[2] == 'sql':
-        # maybe http://localhost/d/DATABASE_NAME/sql
-        return sql_editor(environ, start_response, dal)
+    if len(path_info_list) == 3:
+        if path_info_list[2] == 'sql':
+            # maybe http://localhost/d/DATABASE_NAME/sql
+            return sql_editor(environ, start_response, dal)
+        elif path_info_list[2] == 'rescan':
+            return rescan(environ, start_response, dal)
 
     table_name = path_info_list[2]
     schema = dal.schema.get(table_name)

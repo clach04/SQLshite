@@ -372,7 +372,10 @@ class DataAccessLayer:
         db = db_connection
         self.db = db
         self.name = name
+        self.scan_schema()
 
+    def scan_schema(self):
+        db = self.db
         table_list = db.table_list()  # list of table names only, no schema/owner
         db_schema = {}
         db_schema_jsonform = {}
