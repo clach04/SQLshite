@@ -456,6 +456,7 @@ def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, 
     </head>
     <body>
       <h1>{{table_name}} rows</h1>
+      <a href="../../">databases</a>  <a href="../">tables</a></br>
     '''.replace('{{table_name}}', escape_html(table_name or 'user SQL query')).encode('utf-8')
         yield b'WIP, no paging/offset support</br>'
         if show_sql:
