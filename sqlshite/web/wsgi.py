@@ -258,7 +258,7 @@ def list_tables(environ, start_response):
     dal = global_dbs.get(database)
     if not dal:
         return not_found_404(environ, start_response)
-    result.append(render_template('list_tables.html', {'tables': [table_name for table_name in dal.schema]}))
+    result.append(render_template('list_tables.html', {'database_name': dal.name, 'tables': [table_name for table_name in dal.schema]}))
     start_response(status, headers)
     return result
 
