@@ -1,19 +1,28 @@
-<head>
-<title>SQLshite SQL Editor</title>
-<script src="/js/shortcut.js" type="text/javascript"></script>
+<!doctype html>
+<html lang="en">
+  <head>
 
-<script type="text/javascript">
-function form_setfocus() {document.sqlform.sql_str.focus();}
-function init() {
-    shortcut.add("Ctrl+Enter",function() {
-        document.forms[0].submit();;
-    });
-    
-    form_setfocus();
-}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-window.onload=init; /* or body onload.... */
-</script>
+    <title>SQLshite SQL Editor</title>
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
+    <script src="/js/shortcut.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        function form_setfocus() {document.sqlform.sql_str.focus();}
+        function init() {
+            shortcut.add("Ctrl+Enter",function() {
+                document.forms[0].submit();;
+            });
+
+            form_setfocus();
+        }
+
+        window.onload=init; /* or body onload.... */
+    </script>
 
 
 <!-- FIXME codemirror CDN not working .... -->
@@ -24,29 +33,31 @@ window.onload=init; /* or body onload.... */
 <script src="https://codemirror.net/mode/sql/sql.js"></script>
 -->
 
-</head>
+  </head>
 
 <body>
 
-<a href="../../">databases</a>  <a href="../">tables</a></br>
+    <a href="../../">databases</a>  <a href="../">tables</a></br>
 
-<form method="GET" id="sqlform" name="sqlform">
-<br>
-    Enter SQL and click the Execute button (or press Ctrl+Enter).<br>
-    Multiple SQL statements can be seperated with a semi-colon.<br>
-    WARNING all statements are auto-commited!
-<br><br> 
- 
+    <!-- FIXME: with Bootstrap form goes to edge of screen, needs a small margin (which non-Bootstrap does not have) -->
+    <form method="GET" id="sqlform" name="sqlform">
+    <br>
+        Enter SQL and click the Execute button (or press Ctrl+Enter).<br>
+        Multiple SQL statements can be seperated with a semi-colon.<br>
+        WARNING all statements are auto-commited!
+    <br><br>
+
     SQL: <br>
     <TEXTAREA id="sql_str" NAME="sql_str" ROWS="20" style="width:100%;"></TEXTAREA> 
-    <br> 
- <script>
- /*
-  var editor = CodeMirror.fromTextArea(document.getElementById("sql_str"), {
-    lineNumbers: true
-  });
-  */
-</script>
-    <input type="submit"  value="Execute SQL"/> 
-</form> 
+    <br>
+     <script>
+     /*
+      var editor = CodeMirror.fromTextArea(document.getElementById("sql_str"), {
+        lineNumbers: true
+      });
+      */
+    </script>
+    <button class="btn btn-primary" value="Execute SQL"  type="submit">Execute SQL</button>
+    </form>
 </body>
+</html>
