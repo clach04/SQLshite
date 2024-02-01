@@ -8,6 +8,16 @@
 
   <title>{{table_name}} - View SQLshite</title>
   <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
+
+    <script type="text/javascript">
+    function form_setfocus() {document.quick_search.q.focus();}
+    function init() {
+        form_setfocus();
+    }
+
+    window.onload=init; /* or body onload.... */
+    </script>
+
 </head>
 <body>
   <h1>SQLshite {{table_name}}</h1>
@@ -22,7 +32,7 @@ WIP</br>
     # TODO live autosearch after pause in typing
     -->
 <form method="GET"  id="quick_search" name="quick_search">
-    quick search: <input type="text" name="q" /><br>
+    quick search: <input type="text" name="q" id="q" /><br>
     <button class="btn btn-primary" value="Submit"  type="submit">Search</button>
 </form>
 
