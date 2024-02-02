@@ -27,6 +27,10 @@ Primary aim:
   * quick search, with add (either on no match or no good match) using search term as initial value
 	  * searching either a defined column, the first column, or all columns
 
+## Alternatives
+
+  * https://github.com/sqlitebrowser/sqlitebrowser?tab=readme-ov-file#what-it-is
+
 ## Getting Started
 
 ### From a source code checkout
