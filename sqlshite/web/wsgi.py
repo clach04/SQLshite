@@ -210,13 +210,14 @@ def my_start_server(callable_app):
 
 
 host_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'www')
+template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 
 render_template_cache = {}
 def render_template(template_filename, variables, use_cache=False):
     """Where use_cache means both lookup and store in cache
     Returns bytes
     """
-    template_filename = os.path.join(host_dir, template_filename)
+    template_filename = os.path.join(template_dir, template_filename)
     if use_cache:
         template_string = render_template_cache.get(template_filename)
     else:
