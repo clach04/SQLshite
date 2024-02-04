@@ -407,7 +407,6 @@ def table_row_html_generator(dal, cursor, rowid_first_column_in_result, table_na
         row = cursor.fetchone()
 
 def table_row_html_buffered(dal, cursor, rowid_first_column_in_result, table_name):
-    print('*******rowid_first_column_in_result is %r' % rowid_first_column_in_result)
     result = []
     row = cursor.fetchone()
     row_count = 0
@@ -438,7 +437,7 @@ def table_rows_template_html_table(environ, start_response, dal, table_name, sch
         rowid_first_column_in_result = rowid_first_column_in_result or False
     else:
         rowid_first_column_in_result = True
-    print('rowid_first_column_in_result is %r' % rowid_first_column_in_result)
+    # TODO see if can detect primary key, and not assume rowid (ala rowid_first_column_in_result)
     sql = sql or 'select rowid as sqlite_rowid, * from "%s"' % table_name
     cursor = dal.db.cursor
     if bind_parameters:
