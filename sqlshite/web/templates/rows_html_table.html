@@ -46,11 +46,23 @@
                 opacity: 1;
             }
         </style>
+
+    <script type="text/javascript">
+    function form_setfocus() {document.quick_search.q.focus();}
+    function init() {
+        form_setfocus();
+    }
+
+    window.onload=init; /* or body onload.... */
+    </script>
+
     </head>
     <body>
       <h1>{{table_name}} rows</h1>
       <a href=".././../">databases</a>  <a href="../../">tables</a>  <a href="../../sql/">SQL</a></br>
-    WIP, no paging/offset support</br><table  class="table table-striped" id="sqlrows" name="sqlrows">
+    WIP, no paging/offset support</br>
+{{{html_top_inject}}}
+<table  class="table table-striped" id="sqlrows" name="sqlrows">
 <thead class="thead-dark">
 <tr>
 	{{#column_names}}

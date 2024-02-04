@@ -384,9 +384,9 @@ def sql_editor(environ, start_response, dal):
     content_type, result = serve_file(filename)
     return result
 
-def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, bind_parameters=None, rowid_first_column_in_result=False, show_sql=False):
+def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, bind_parameters=None, rowid_first_column_in_result=False, show_sql=False, html_top_inject=None):
     #return table_rows_stream_html_table(environ, start_response, dal, table_name, schema=schema, sql=sql, bind_parameters=bind_parameters, rowid_first_column_in_result=rowid_first_column_in_result, show_sql=show_sql)
-    return table_rows_template_html_table(environ, start_response, dal, table_name, schema=schema, sql=sql, bind_parameters=bind_parameters, rowid_first_column_in_result=rowid_first_column_in_result, show_sql=show_sql)
+    return table_rows_template_html_table(environ, start_response, dal, table_name, schema=schema, sql=sql, bind_parameters=bind_parameters, rowid_first_column_in_result=rowid_first_column_in_result, show_sql=show_sql, html_top_inject=html_top_inject)
 
 def table_row_html_generator(dal, cursor, rowid_first_column_in_result, table_name):
     row = cursor.fetchone()
@@ -407,6 +407,7 @@ def table_row_html_generator(dal, cursor, rowid_first_column_in_result, table_na
         row = cursor.fetchone()
 
 def table_row_html_buffered(dal, cursor, rowid_first_column_in_result, table_name):
+    print('*******rowid_first_column_in_result is %r' % rowid_first_column_in_result)
     result = []
     row = cursor.fetchone()
     row_count = 0
@@ -424,10 +425,9 @@ def table_row_html_buffered(dal, cursor, rowid_first_column_in_result, table_nam
             result.append(tmp_str)
         result.append('</tr>\n')
         row = cursor.fetchone()
-    print(result)
     return ''.join(result), row_count
 
-def table_rows_template_html_table(environ, start_response, dal, table_name, schema=None, sql=None, bind_parameters=None, rowid_first_column_in_result=False, show_sql=False):
+def table_rows_template_html_table(environ, start_response, dal, table_name, schema=None, sql=None, bind_parameters=None, rowid_first_column_in_result=False, show_sql=False, html_top_inject=None):
     """Buffer rows from table/arbitary SQL query in a html table into a template then return
     """
     status = '200 OK'
@@ -438,6 +438,7 @@ def table_rows_template_html_table(environ, start_response, dal, table_name, sch
         rowid_first_column_in_result = rowid_first_column_in_result or False
     else:
         rowid_first_column_in_result = True
+    print('rowid_first_column_in_result is %r' % rowid_first_column_in_result)
     sql = sql or 'select rowid as sqlite_rowid, * from "%s"' % table_name
     cursor = dal.db.cursor
     if bind_parameters:
@@ -451,6 +452,8 @@ def table_rows_template_html_table(environ, start_response, dal, table_name, sch
     if rowid_first_column_in_result:
         column_names = column_names[1:]
     """
+    if rowid_first_column_in_result:
+        del(column_names[0])
     if not show_sql:
         sql = None
 
@@ -463,6 +466,7 @@ def table_rows_template_html_table(environ, start_response, dal, table_name, sch
         'rows_html': rows_html,
         #'rows_html': table_row_html_generator(dal, cursor, rowid_first_column_in_result, table_name),
         'row_count': row_count,  # cursor.rowcount,  # not set at this point in time
+        'html_top_inject': html_top_inject,
     }))
     start_response(status, headers)
     return result
@@ -665,12 +669,19 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
                     quick_search_column_name = column_name
                     break
         log.debug('quick_search_column_name %r', quick_search_column_name)
+        orig_q = q
         if not q.startswith('%'):
             q = '%' + q
         if not q.endswith('%'):
             q = q + '%'
         sql = 'select rowid as sqlite_rowid, * from "%s" where "%s" like ?' % (table_name, quick_search_column_name)
-        return table_rows(environ, start_response, dal, table_name=table_name, schema=schema, sql=sql, bind_parameters=(q, ), rowid_first_column_in_result=True)
+        html_top_inject = '''<form method="GET"  id="quick_search" name="quick_search">
+    quick search: <input type="text" name="q" id="q" value="%s"/><br>
+    <button class="btn btn-primary" value="Submit"  type="submit">Search</button>
+</form>
+
+''' % (escape_html(orig_q),)  # or q
+        return table_rows(environ, start_response, dal, table_name=table_name, schema=schema, sql=sql, bind_parameters=(q, ), rowid_first_column_in_result=True, html_top_inject=html_top_inject)
 
     if len(path_info_list) == 4:
         if path_info_list[3] == 'rows':
