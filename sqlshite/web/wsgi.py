@@ -385,7 +385,90 @@ def sql_editor(environ, start_response, dal):
     return result
 
 def table_rows(environ, start_response, dal, table_name, schema=None, sql=None, bind_parameters=None, rowid_first_column_in_result=False, show_sql=False):
-    """Explore a table
+    #return table_rows_stream_html_table(environ, start_response, dal, table_name, schema=schema, sql=sql, bind_parameters=bind_parameters, rowid_first_column_in_result=rowid_first_column_in_result, show_sql=show_sql)
+    return table_rows_template_html_table(environ, start_response, dal, table_name, schema=schema, sql=sql, bind_parameters=bind_parameters, rowid_first_column_in_result=rowid_first_column_in_result, show_sql=show_sql)
+
+def table_row_html_generator(dal, cursor, rowid_first_column_in_result, table_name):
+    row = cursor.fetchone()
+    row_count = 0
+    while row:
+        row_count += 1
+        yield '<tr>\n'
+        if rowid_first_column_in_result:
+            rowid = row[0]
+            row = row[1:]
+            column_value_template = '<a href="/d/%s/%s/view/%d/">%%s</a>' % (dal.name, table_name, rowid)  # TODO escaping?
+        else:
+            column_value_template = '%s'
+        for column_value in row:
+            tmp_str = "<td>" + column_value_template % escape_html(unicode(column_value)) + "</td>"  # FIXME string processng, for example boolean to check-box
+            yield tmp_str
+        yield '</tr>\n'
+        row = cursor.fetchone()
+
+def table_row_html_buffered(dal, cursor, rowid_first_column_in_result, table_name):
+    result = []
+    row = cursor.fetchone()
+    row_count = 0
+    while row:
+        row_count += 1
+        result.append('<tr>\n')
+        if rowid_first_column_in_result:
+            rowid = row[0]
+            row = row[1:]
+            column_value_template = '<a href="/d/%s/%s/view/%d/">%%s</a>' % (dal.name, table_name, rowid)  # TODO escaping?
+        else:
+            column_value_template = '%s'
+        for column_value in row:
+            tmp_str = "<td>" + column_value_template % escape_html(unicode(column_value)) + "</td>"  # FIXME string processng, for example boolean to check-box
+            result.append(tmp_str)
+        result.append('</tr>\n')
+        row = cursor.fetchone()
+    print(result)
+    return ''.join(result), row_count
+
+def table_rows_template_html_table(environ, start_response, dal, table_name, schema=None, sql=None, bind_parameters=None, rowid_first_column_in_result=False, show_sql=False):
+    """Buffer rows from table/arbitary SQL query in a html table into a template then return
+    """
+    status = '200 OK'
+    headers = [('Content-type', 'text/html')]
+    result = []
+
+    if sql:
+        rowid_first_column_in_result = rowid_first_column_in_result or False
+    else:
+        rowid_first_column_in_result = True
+    sql = sql or 'select rowid as sqlite_rowid, * from "%s"' % table_name
+    cursor = dal.db.cursor
+    if bind_parameters:
+        cursor.execute(sql, bind_parameters)
+    else:
+        cursor.execute(sql)
+    column_names = list(x[0] for x in cursor.description)  # or use schema... has more detail (at least for SQLite)
+    if column_names[0] == 'rowid':
+        rowid_first_column_in_result = True
+    """ If we can determine table name, can check for rowid....
+    if rowid_first_column_in_result:
+        column_names = column_names[1:]
+    """
+    if not show_sql:
+        sql = None
+
+    # rows_html = table_row_html_generator(dal, cursor, rowid_first_column_in_result, table_name)
+    rows_html, row_count = table_row_html_buffered(dal, cursor, rowid_first_column_in_result, table_name)
+    result.append(render_template('rows_html_table.html', {
+        'database_name': dal.name,
+        'table_name': table_name or 'user SQL query',
+        'column_names': column_names,
+        'rows_html': rows_html,
+        #'rows_html': table_row_html_generator(dal, cursor, rowid_first_column_in_result, table_name),
+        'row_count': row_count,  # cursor.rowcount,  # not set at this point in time
+    }))
+    start_response(status, headers)
+    return result
+
+def table_rows_stream_html_table(environ, start_response, dal, table_name, schema=None, sql=None, bind_parameters=None, rowid_first_column_in_result=False, show_sql=False):
+    """Stream rows in table/arbitary SQL query in a html table
     """
     status = '200 OK'
     headers = [('Content-type', 'text/html')]
