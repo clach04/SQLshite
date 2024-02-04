@@ -283,7 +283,7 @@ def jsonform(environ, start_response):
     jsonform_dict = dal.jsonform.get(table_name)
     if not jsonform_dict:
         return not_found_404(environ, start_response)
-    result.append(json.dumps(jsonform_dict, indent=4))
+    result.append(json.dumps(jsonform_dict, indent=4, default=str).encode('utf-8'))
     start_response(status, headers)
     return result
 

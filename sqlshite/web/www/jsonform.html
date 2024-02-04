@@ -19,11 +19,9 @@
   </style>
 </head>
 <body>
-  <h1>Getting started with JSON Form</h1>
+  <h1>TODO add TABLE_NAME HERE</h1>
   <a href="../../../">databases</a>  <a href="../../">tables</a></br>
-  <form></form>
   <div id="res" class="alert"></div>
-
         <div class="col-md-7">
           <h2>Generated form</h2>
           <div id="result" class="well">(please wait)</div>
@@ -35,27 +33,6 @@
   <script type="text/javascript" src="/js/jsonform.js"></script>
   <script type="text/javascript">
         var jsonform_dict = null;
-
-    $('form').jsonForm({
-      schema: {
-        name: {
-          type: 'string',
-          title: 'Name',
-          required: true
-        },
-        age: {
-          type: 'number',
-          title: 'Age'
-        }
-      },
-      onSubmitValid: function (values) {
-        if (console && console.log) {
-          console.log('Values extracted from submitted form', values);
-        }
-        window.alert('Form submitted. Values object:\n' +
-          JSON.stringify(values, null, 2));
-      }
-    });
 
         var loadExample = function (example) {
             $.ajax({
@@ -78,7 +55,6 @@
         });
         };
         loadExample('dummy');
-
 
   </script>
 </body>
