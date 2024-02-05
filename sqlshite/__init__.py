@@ -63,6 +63,13 @@ _to_python_mappings = {
     Timestamp: lambda d: datetime.datetime(*map(int, d.toString().replace('.', ' ').replace(':', ' ').replace('-', ' ').split())),  # NOTE negative times if they exist (not sure with JDBC) would cause issues
     #Timestamp: lambda d: datetime.datetime(),  # could use python 2.5+ .strptime() with input from .toString()
 }
+
+from python
+
+d.isoformat()
+d.strftime('%H:%M:%S')
+d.strftime('%Y-%m-%d %H:%M:%S') + ('.%d' % d.microsecond)
+
 """
 # Naive timezone-unaware https://docs.python.org/3/library/sqlite3.html#sqlite3-adapter-converter-recipes
 def convert_date(val):
