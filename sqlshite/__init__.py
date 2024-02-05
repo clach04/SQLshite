@@ -55,6 +55,15 @@ def bool_converter(in_value):
 sqlite3.register_converter('bool', bool_converter)
 sqlite3.register_converter('boolean', bool_converter)
 
+"""
+_to_python_mappings = {
+    Decimal: lambda d: decimal.Decimal(str(d)),
+    Date: lambda d: datetime.date(*map(int, d.toString().split('-'))),
+    Time: lambda d: datetime.time(*map(int, d.toString().split(':'))),
+    Timestamp: lambda d: datetime.datetime(*map(int, d.toString().replace('.', ' ').replace(':', ' ').replace('-', ' ').split())),  # NOTE negative times if they exist (not sure with JDBC) would cause issues
+    #Timestamp: lambda d: datetime.datetime(),  # could use python 2.5+ .strptime() with input from .toString()
+}
+"""
 # Naive timezone-unaware https://docs.python.org/3/library/sqlite3.html#sqlite3-adapter-converter-recipes
 def convert_date(val):
     """Convert ISO 8601 date to datetime.date object."""
