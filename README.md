@@ -29,7 +29,15 @@ Primary aim:
 
 ## Alternatives
 
-  * https://github.com/sqlitebrowser/sqlitebrowser?tab=readme-ov-file#what-it-is
+Local
+
+  * GUI https://github.com/sqlitebrowser/sqlitebrowser?tab=readme-ov-file#what-it-is
+  * https://github.com/dbcli/litecli
+
+Web
+
+  * https://github.com/jeffknupp/sandman2
+  * https://github.com/cs91chris/flask_autocrud
 
 ## Getting Started
 
