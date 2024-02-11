@@ -20,12 +20,11 @@ except ImportError:
     from cgi import escape as escape_html
 
 try:
-    # py2 (and <py3.8)
-    from cgi import parse_qs
-except ImportError:
     # py3
     from urllib.parse import parse_qs
-
+except ImportError:
+    # py2 (and <py3.8)
+    from cgi import parse_qs
 
 import mimetypes
 from pprint import pprint
