@@ -345,17 +345,106 @@ def rescan(environ, start_response, dal):
     start_response(status, headers)
     return result
 
-def add_row(environ, start_response, dal, table_name, schema=None):
+def insert_update_row(dal, table_name, user_values_dict, schema=None, update=False):
+    """schema required as do not trust column names in user_values_dict
+    """
+    row_value_dict = {}
+    schema = schema or dal.schema.get(table_name)
+    # TODO has table_name been validated?
+    for metadata in schema:
+        column_name, python_type = metadata[0], metadata[1]
+        row_value_dict[column_name] = None
+    for column_name in user_values_dict:
+        row_value_dict[column_name] = user_values_dict[column_name]  # TODO catch missing items and return error
+    # row_value_dict now contains values form user or None/NULL
+    if not update:
+        # have an INSERT, remove None/NULL values (let DBMS default)
+        for column_name in list(row_value_dict.keys()):
+            if row_value_dict[column_name] is None:
+                del row_value_dict[column_name]
+
+    columns_names_in_statement = []
+    bind_parameters = []  # will become a tuple later
+    for metadata in schema:
+        column_name, python_type = metadata[0], metadata[1]
+        if column_name in row_value_dict:
+            columns_names_in_statement.append(column_name)
+            bind_parameters.append(row_value_dict[column_name])
+
+    if update:
+        pass
+    else:
+        # have an INSERT
+        bind_markers_str = ', '.join(['?',] * len(bind_parameters))
+        sql = 'INSERT INTO "%s" (%s) VALUES (%s)' % (table_name, ', '.join(columns_names_in_statement), bind_markers_str)
+
+    cursor = dal.db.cursor
+    cursor.execute(sql, tuple(bind_parameters))
+
+def return_json(environ, start_response, value):
+    """return a json object
+    """
+    '''
+    status = '200 OK'
+    headers = [('Content-type', 'text/html')]
+    result = []
+    start_response(status, headers)
+    return result
+    '''
+    status = '200 OK'
+    headers = [('Content-type', 'application/json; charset=utf-8')]  # make Microsoft Edge happy by including explict character set
+    start_response(status, headers)
+    return [json.dumps(value, indent=4).encode('utf-8')]
+
+def add_row(environ, start_response, dal, table_name, schema=None, request_body=None):
     """Explore a table
     """
     status = '200 OK'
     headers = [('Content-type', 'text/html')]
     result = []
 
-    filename = os.path.join(host_dir, 'jsonform.html')
-    start_response(status, headers)
-    content_type, result = serve_file(filename)
-    return result
+    """TODO handle
+PATH_INFO '/d/memory/kitchen_sink/add/'
+PATH_INFO split ['', 'd', 'memory', 'kitchen_sink', 'add', '']
+PATH_INFO split2['d', 'memory', 'kitchen_sink', 'add']
+CONTENT_TYPE 'application/x-www-form-urlencoded'
+REQUEST_METHOD 'POST'
+body payload: b'number=99&str=read+ballows&float=&date=2024-02-17&datetime=2024-02-27T11%3A12&bottles_of_beer=99&delimited+id='
+Forefox (dev) did NOT offer time selection... and secs are masked out/not-sent :-(
+    try:
+        request_body_size = int(environ.get('CONTENT_LENGTH', 0))
+    except (ValueError):
+        request_body_size = 0
+    request_body = {}
+
+    if environ['REQUEST_METHOD'] != 'GET':  # for now assume POST
+        # Read POST, etc. body
+        # assume CONTENT_TYPE 'application/x-www-form-urlencoded'
+        if request_body_size:
+            request_body = environ['wsgi.input'].read(request_body_size)
+        else:
+            # read with NO size
+            #import pdb ; pdb.set_trace()
+            request_body = environ['wsgi.input'].read()  # everything, seen on linux where zero param would return no bytes
+        value_dict = parse_qs(environ['request_body'])
+        print('form values %s' % json.dumps(value_dict, indent=4))
+    """
+
+    if request_body:
+        #  {b'number=&str=qwertyuiop%5B&float=&date=&datetime=&bottles_of_beer=99&delimited+id='}
+        print('add row request_body %r' % (request_body,))
+        value_dict = parse_qs(request_body.decode('utf-8'))
+        print('form values %s' % json.dumps(value_dict, indent=4))
+        for temp_key in value_dict:
+            value_dict[temp_key] = value_dict[temp_key][0]  # throw away the rest
+        print('form values %s' % json.dumps(value_dict, indent=4))
+        insert_update_row(dal, table_name, value_dict, schema=schema)
+        return return_json(environ, start_response, value_dict)  # DEBUG TODO do something
+    else:
+        filename = os.path.join(host_dir, 'jsonform.html')
+        start_response(status, headers)
+        content_type, result = serve_file(filename)
+        return result
 
 def sql_editor(environ, start_response, dal):
     """Explore a table
@@ -602,7 +691,7 @@ document.addEventListener('DOMContentLoaded', onPageReady, false);
 '''
     # TODO commit...
 
-def table_explore(environ, start_response, path_info=None, path_info_list=None):
+def table_explore(environ, start_response, path_info=None, path_info_list=None, request_body=None):
     """Explore a table
     TODO redirect if not ending in / and database view
     """
@@ -687,7 +776,7 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
         if path_info_list[3] == 'rows':
             return table_rows(environ, start_response, dal, table_name, schema)
         elif path_info_list[3] == 'add':
-            return add_row(environ, start_response, dal, table_name, schema)
+            return add_row(environ, start_response, dal, table_name, schema, request_body=request_body)
         else:
             operation = path_info_list[3]
             try:
@@ -819,7 +908,7 @@ class DalWebApp:
             elif len(path_info_list) == 2:
                 return list_tables(environ, start_response)
             elif len(path_info_list) in (3, 4, 5, 6):
-                return table_explore(environ, start_response, path_info=path_info, path_info_list=path_info_list)
+                return table_explore(environ, start_response, path_info=path_info, path_info_list=path_info_list, request_body=request_body)
 
 
         if True:
