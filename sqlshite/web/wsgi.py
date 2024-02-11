@@ -56,7 +56,7 @@ import stache
 
 import sqlshite
 
-
+is_jy = hasattr(sys, 'JYTHON_JAR') or str(copyright).find('Jython') > 0
 
 log = logging.getLogger(__name__)
 #logging.basicConfig()
@@ -157,14 +157,16 @@ def determine_local_ipaddr():
                 except IOError:
                     pass
 
-    # Jython / Java approach
-    if not local_address and InetAddress:
-        addr = InetAddress.getLocalHost()
-        hostname = addr.getHostName()
-        for ip_addr in InetAddress.getAllByName(hostname):
-            if not ip_addr.isLoopbackAddress():
-                local_address = ip_addr.getHostAddress()
-                break
+    if is_jy:
+        from java.net import InetAddress
+        # Jython / Java approach
+        if not local_address and InetAddress:
+            addr = InetAddress.getLocalHost()
+            hostname = addr.getHostName()
+            for ip_addr in InetAddress.getAllByName(hostname):
+                if not ip_addr.isLoopbackAddress():
+                    local_address = ip_addr.getHostAddress()
+                    break
 
     if not local_address:
         # really? Oh well lets connect to a remote socket (Google DNS server)
