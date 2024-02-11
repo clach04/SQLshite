@@ -619,7 +619,7 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None):
         # dumb redirect
         log.debug('**** REDIRECT %r' % (path_info, ))
         start_response('302 Found', [('Location', path_info + '/')])
-        return b'redirect with trailing /'
+        return [b'redirect with trailing /']
 
     if len(path_info_list) == 4:
         if path_info.endswith('/jsonform.json'):
