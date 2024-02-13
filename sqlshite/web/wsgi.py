@@ -335,6 +335,13 @@ def view_html(environ, start_response, dal, table_name, schema, rowid, request_b
         value_dict = parse_first_values(request_body)
         # Now figure out was this an ADD or EDIT/UPDATE? Assume as VIEW this is EDIT
         database_result = insert_update_row(dal, table_name, value_dict, schema=schema, update=True, rowid=rowid)
+        rowid = database_result.get('rowid')
+        if rowid:
+            # redirect....
+            #log.debug('**** REDIRECT %r' % (path_info, ))
+            #start_response('302 Found', [('Location', path_info + '/')])
+            start_response('302 Found', [('Location', '../%s' % unicode(rowid))])
+            return [b'redirect to view']
         # TODO handle errors....
         print('view_html rowid %r database_result %r' % (rowid, database_result,))  # should be rowid, unless rowid/pk was updated...
         return return_json(environ, start_response, value_dict)  # DEBUG TODO do something
@@ -395,12 +402,13 @@ def insert_update_row(dal, table_name, user_values_dict, schema=None, update=Fal
     else:
         # have an INSERT
         bind_markers_str = ', '.join(['?',] * len(bind_parameters))
-        sql = 'INSERT INTO "%s" (%s) VALUES (%s)' % (table_name, ', '.join(columns_names_in_statement), bind_markers_str)  # FIXME delimited column names
+        sql = 'INSERT INTO "%s" ("%s") VALUES (%s)' % (table_name, '", "'.join(columns_names_in_statement), bind_markers_str)  # FIXME delimited column names
 
     log.debug('sql: %s' % sql)
     cursor = dal.db.cursor
     cursor.execute(sql, tuple(bind_parameters))
     # TODO return pk / lastrowid
+    return {'rowid': row_value_dict.get('rowid', rowid if rowid is not None else cursor.lastrowid)}
 
 def return_json(environ, start_response, value):
     """return a json object
@@ -472,7 +480,14 @@ Forefox (dev) did NOT offer time selection... and secs are masked out/not-sent :
         for temp_key in value_dict:
             value_dict[temp_key] = value_dict[temp_key][0]  # throw away the rest
         print('form values %s' % json.dumps(value_dict, indent=4))
-        insert_update_row(dal, table_name, value_dict, schema=schema)
+        database_result = insert_update_row(dal, table_name, value_dict, schema=schema)
+        rowid = database_result.get('rowid')
+        if rowid:
+            # redirect....
+            #log.debug('**** REDIRECT %r' % (path_info, ))
+            start_response('302 Found', [('Location', '../view/%s' % unicode(rowid))])
+            return [b'redirect to view']
+
         return return_json(environ, start_response, value_dict)  # DEBUG TODO do something
     else:
         filename = os.path.join(host_dir, 'jsonform.html')
