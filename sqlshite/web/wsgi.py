@@ -320,13 +320,24 @@ def view_row(environ, start_response, dal, table_name, schema, rowid):
     start_response(status, headers)
     return result
 
-def view_html(environ, start_response, dal, table_name, schema, rowid):
+def view_html(environ, start_response, dal, table_name, schema, rowid, request_body=None):
     """View a row, NOTE duplication of code with add and edit
     FIXME redirect if not ending in /
+    NOTE actually edit...
     """
     status = '200 OK'
     headers = [('Content-type', 'text/html')]
     result = []
+
+    if request_body:
+        #  {b'number=&str=qwertyuiop%5B&float=&date=&datetime=&bottles_of_beer=99&delimited+id='}
+        print('view_html rowid %r request_body %r' % (rowid, request_body,))
+        value_dict = parse_first_values(request_body)
+        # Now figure out was this an ADD or EDIT/UPDATE? Assume as VIEW this is EDIT
+        database_result = insert_update_row(dal, table_name, value_dict, schema=schema, update=True, rowid=rowid)
+        # TODO handle errors....
+        print('view_html rowid %r database_result %r' % (rowid, database_result,))  # should be rowid, unless rowid/pk was updated...
+        return return_json(environ, start_response, value_dict)  # DEBUG TODO do something
 
     # TODO use rowid?
     result.append(render_template('viewform.html', {'table_name': table_name}))
@@ -345,8 +356,9 @@ def rescan(environ, start_response, dal):
     start_response(status, headers)
     return result
 
-def insert_update_row(dal, table_name, user_values_dict, schema=None, update=False):
+def insert_update_row(dal, table_name, user_values_dict, schema=None, update=False, rowid=None):
     """schema required as do not trust column names in user_values_dict
+    TODO error handling/reporting
     """
     row_value_dict = {}
     schema = schema or dal.schema.get(table_name)
@@ -372,14 +384,23 @@ def insert_update_row(dal, table_name, user_values_dict, schema=None, update=Fal
             bind_parameters.append(row_value_dict[column_name])
 
     if update:
-        pass
+        # TODO determine primary key and value
+        if rowid:
+            primary_key = '"rowid"'
+            bind_parameters.append(rowid)
+        else:
+            raise NotImplemented()  # pick first column in schema? what about compound keys...
+        sql = 'UPDATE "%s" SET "%s"=? WHERE %s=?' % (table_name, '"=?, "'.join(columns_names_in_statement), primary_key)
+        # TODO detect zero row update and report back as an error
     else:
         # have an INSERT
         bind_markers_str = ', '.join(['?',] * len(bind_parameters))
-        sql = 'INSERT INTO "%s" (%s) VALUES (%s)' % (table_name, ', '.join(columns_names_in_statement), bind_markers_str)
+        sql = 'INSERT INTO "%s" (%s) VALUES (%s)' % (table_name, ', '.join(columns_names_in_statement), bind_markers_str)  # FIXME delimited column names
 
+    log.debug('sql: %s' % sql)
     cursor = dal.db.cursor
     cursor.execute(sql, tuple(bind_parameters))
+    # TODO return pk / lastrowid
 
 def return_json(environ, start_response, value):
     """return a json object
@@ -395,6 +416,18 @@ def return_json(environ, start_response, value):
     headers = [('Content-type', 'application/json; charset=utf-8')]  # make Microsoft Edge happy by including explict character set
     start_response(status, headers)
     return [json.dumps(value, indent=4).encode('utf-8')]
+
+def parse_first_values(request_body):
+    """Where request_body is parameter list from GET, POST form, etc.
+    """
+    #  b'number=&str=qwertyuiop%5B&float=&date=&datetime=&bottles_of_beer=99&delimited+id='
+    print('add row request_body %r' % (request_body,))
+    value_dict = parse_qs(request_body.decode('utf-8'))
+    print('form values %s' % json.dumps(value_dict, indent=4))
+    for temp_key in value_dict:
+        value_dict[temp_key] = value_dict[temp_key][0]  # throw away the rest
+    print('form values %s' % json.dumps(value_dict, indent=4))
+    return value_dict
 
 def add_row(environ, start_response, dal, table_name, schema=None, request_body=None):
     """Explore a table
@@ -431,7 +464,8 @@ Forefox (dev) did NOT offer time selection... and secs are masked out/not-sent :
     """
 
     if request_body:
-        #  {b'number=&str=qwertyuiop%5B&float=&date=&datetime=&bottles_of_beer=99&delimited+id='}
+        #FIXME value_dict = parse_first_values(request_body)
+        #  b'number=&str=qwertyuiop%5B&float=&date=&datetime=&bottles_of_beer=99&delimited+id='
         print('add row request_body %r' % (request_body,))
         value_dict = parse_qs(request_body.decode('utf-8'))
         print('form values %s' % json.dumps(value_dict, indent=4))
@@ -787,12 +821,12 @@ def table_explore(environ, start_response, path_info=None, path_info_list=None, 
                 pass  # just view table
     elif len(path_info_list) == 5:
         try:
-            if path_info_list[3] == 'view':
+            if path_info_list[3] == 'view':  # TODO 'edit'
                 # http://localhost:8777/d/memory/kitchen_sink/view/1
                 # http://localhost:8777/d/memory/kitchen_sink/view/1/
                 operation = path_info_list[4]
                 rowid = int(operation)
-                return view_html(environ, start_response, dal, table_name, schema, rowid)
+                return view_html(environ, start_response, dal, table_name, schema, rowid, request_body=request_body)
             elif path_info.endswith('/view.json'):  # TODO edit
                 # http://localhost:8777/d/memory/kitchen_sink/1/view.json  # unused yet...
                 # Assume SQLite3
