@@ -490,9 +490,11 @@ Forefox (dev) did NOT offer time selection... and secs are masked out/not-sent :
 
         return return_json(environ, start_response, value_dict)  # DEBUG TODO do something
     else:
-        filename = os.path.join(host_dir, 'jsonform.html')
+        result.append(render_template('add_form.html', {'table_name': table_name}))
+
+        #filename = os.path.join(host_dir, 'jsonform.html')
         start_response(status, headers)
-        content_type, result = serve_file(filename)
+        #content_type, result = serve_file(filename)
         return result
 
 def sql_editor(environ, start_response, dal):
