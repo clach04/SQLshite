@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Getting started with JSON Form</title>
+  <title>{{table_name}} - Add SQLshite</title>
   <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
   <style>
       .jsonform-required > label:after {
@@ -19,11 +19,10 @@
   </style>
 </head>
 <body>
-  <h1>TODO add TABLE_NAME HERE</h1>
-  <a href="../../../">databases</a>  <a href="../../">tables</a></br>
-  <div id="res" class="alert"></div>
+    <a href="../../../../">databases</a>  <a href="../../../">tables</a>  <a href="../../">{{table_name}}</a>  <a href="../../rows/">{{table_name}} rows</a></br>
+    <div id="res" class="alert"></div>  <!-- TODO make red -->
         <div class="col-md-7">
-          <h2>Generated form</h2>
+          <h2>{{table_name}}</h2>
           <div id="result" class="well">(please wait)</div>
         </div>
 
@@ -37,7 +36,7 @@
         var loadExample = function (example) {
             $.ajax({
                 //url: 'examples/' + example + '.json',
-                url: '/d/memory/kitchen_sink/jsonform.json',
+                url: '../jsonform.json',  // uses relative path
                 dataType: 'text'
             }).done(function (json_string) {
                 if (console && console.log) {
