@@ -40,6 +40,7 @@ Web
   * https://github.com/cs91chris/flask_autocrud
   * https://github.com/mathesar-foundation/mathesar (only one DBMS supported)
   * https://github.com/vrana/adminer
+  * https://github.com/dbgate/dbgate
 
 ## Getting Started
 
