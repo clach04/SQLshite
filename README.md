@@ -36,6 +36,7 @@ Local
 
 Web
 
+  * https://github.com/coleifer/sqlite-web
   * https://github.com/jeffknupp/sandman2
   * https://github.com/cs91chris/flask_autocrud
   * https://github.com/mathesar-foundation/mathesar (only one DBMS supported)
