@@ -43,6 +43,7 @@ Web
   * https://github.com/vrana/adminer
   * https://github.com/dbgate/dbgate
   * https://github.com/pocketbase/pocketbase
+  * https://github.com/mvbasov/sqliteboy
 
 ## Getting Started
 
