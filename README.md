@@ -11,7 +11,7 @@ Focused on single table work, rather than fk/pk relationship display. this is mo
 
 Primary aim:
 
-  * no security - did you pay attention to the name of this project?
+  * no security - did you pay attention to the name of this project? (Limit to localhost, use a reverse-proxy over https)
   * Simple SQL queries (TODO determine transaction model - autocommit is the current plan)
   * view/edit record, using [jsonschema](https://json-schema.org/) / jsonforms (unlike above where transaction model is unclear, autocommit on save)
 	  * https://www.google.com/search?q=jsonform
