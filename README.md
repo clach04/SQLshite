@@ -29,6 +29,8 @@ Primary aim:
 
 ## Alternatives
 
+  * https://github.com/mgramin/awesome-db-tools#gui
+
 Local
 
   * GUI https://github.com/sqlitebrowser/sqlitebrowser?tab=readme-ov-file#what-it-is
