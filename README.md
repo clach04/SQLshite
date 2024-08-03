@@ -4,7 +4,25 @@
 
 🗄💩 A terrible SQLite Web UI
 
+Home page https://github.com/clach04/SQLshite/
+
 Not ready for general consumption, right now only browsing/viewing SQLite3 databases/tables is supported (and then barely).
+
+  * [Overview](#overview)
+  * [Alternatives](#alternatives)
+  * [Getting Started](#getting-started)
+    + [From a source code checkout](#from-a-source-code-checkout)
+      - [Usage](#usage)
+  * [Design](#design)
+    + [URLs](#urls)
+      - [URLs TODO / TBD](#urls-todo---tbd)
+  * [Questions](#questions)
+    + [Datatypes](#datatypes)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
+
+## Overview
 
 Aim is a simple UI, that works on mobile for quick search.
 Focused on single table work, rather than fk/pk relationship display. this is mostly implemented, without write (INSERT, DELETE, UPDATE) support (and with UI/UX blemishes). Use cases, less than 100k rows, that would have previously been suitable for use with tools like [Pilot-DB](https://pilot-db.sourceforge.net/), MobileDB, JFile, HanDBase, [Easy Database for Android](https://play.google.com/store/apps/details?id=com.dsiastur.easy_database), etc.
