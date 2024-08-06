@@ -64,6 +64,7 @@ Web
   * https://github.com/dbgate/dbgate
   * https://github.com/pocketbase/pocketbase
   * https://github.com/mvbasov/sqliteboy
+  * https://github.com/gitvipin/sql30
 
 ## Getting Started
 
